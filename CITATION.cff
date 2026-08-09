@@ -1,0 +1,29 @@
+cff-version: 1.2.0
+message: "If you use KARA in research, teaching or a publication, please cite it as follows."
+title: "KARA — a tiny declarative reactive language for desktop UI prototyping"
+abstract: >-
+  KARA is a language and runtime for prototyping reactive desktop UIs. It ships a
+  complete compiler pipeline (lexer, parser, semantic analysis, static type
+  inference, component expansion), a zero-dependency tree-walker interpreter with
+  a reactive dependency graph, a language server (LSP) with live diagnostics and
+  completion, a Tauri desktop shell, and a fully client-side browser playground.
+type: software
+authors:
+  - family-names: Bravo Medina
+    given-names: Juan Marcos
+    alias: JMarc
+    website: https://github.com/jmarc9901
+    orcid: ""
+version: 0.3.0
+date-released: "2026-08-09"
+license: Apache-2.0
+repository-code: https://github.com/jmarc9901/KARA
+url: https://jmarc9901.github.io/KARA
+keywords:
+  - programming language
+  - domain-specific language
+  - compiler
+  - interpreter
+  - reactive programming
+  - desktop UI
+  - LSP
