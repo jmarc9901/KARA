@@ -34,7 +34,7 @@
       "icons/icon.ico"
     ],
     "category": "DeveloperTool",
-    "shortDescription": "KARA — prototipa UIs reactivas de escritorio",
-    "longDescription": "KARA es un lenguaje y runtime para prototipar UIs reactivas de escritorio con un playground instantáneo: componentes con estado propio, reactividad declarativa y hot-reload."
+    "shortDescription": "KARA — prototype reactive desktop UIs",
+    "longDescription": "KARA is a language and runtime for prototyping reactive desktop UIs with an instant playground: stateful components, declarative reactivity and hot-reload."
   }
 }

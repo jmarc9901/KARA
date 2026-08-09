@@ -2,12 +2,12 @@
 
 //! KARA desktop shell.
 //!
-//! Abre una ventana nativa (Tauri v2), lanza el runtime Node de KARA como
-//! proceso hijo, espera a que el servidor HTTP esté listo y navega la ventana
-//! a `http://127.0.0.1:<port>`. Al salir, mata el proceso del runtime.
+//! Opens a native window (Tauri v2), launches the KARA Node runtime as a child
+//! process, waits for the HTTP server to be ready and navigates the window to
+//! `http://127.0.0.1:<port>`. Kills the runtime process on exit.
 //!
-//! Nota: el runtime se ejecuta con `node` del PATH. Embeber Node en el binario
-//! está en el roadmap (docs/en/positioning.md).
+//! Note: the runtime runs with `node` from PATH. Embedding Node in the binary
+//! is on the roadmap (docs/en/positioning.md).
 
 use std::net::TcpStream;
 use std::path::{Path, PathBuf};
@@ -27,7 +27,7 @@ fn main() {
             let handle = app.handle().clone();
 
             let Some(root) = find_project_root() else {
-                eprintln!("[kara] no se encontró kara.config.json (buscando desde el ejecutable)");
+                eprintln!("[kara] kara.config.json not found (searched from the executable)");
                 return Ok(());
             };
 
@@ -35,11 +35,11 @@ fn main() {
 
             let runtime_script = root.join("runtime").join("src").join("index.js");
             if !runtime_script.exists() {
-                eprintln!("[kara] no existe {} — no se puede arrancar el runtime", runtime_script.display());
+                eprintln!("[kara] {} not found — cannot start the runtime", runtime_script.display());
                 return Ok(());
             }
             if !root.join("ui").join("dist").join("index.html").exists() {
-                eprintln!("[kara] ui/dist no está construido — ejecuta: npm --prefix ui run build");
+                eprintln!("[kara] ui/dist is not built — run: npm --prefix ui run build");
             }
 
             match Command::new("node")
@@ -52,10 +52,10 @@ fn main() {
             {
                 Ok(child) => {
                     app.manage(NodeRuntime(Mutex::new(Some(child))));
-                    println!("[kara] runtime Node lanzado (puerto {})", port);
+                    println!("[kara] Node runtime started (port {})", port);
                 }
                 Err(e) => {
-                    eprintln!("[kara] no se pudo lanzar node: {e}");
+                    eprintln!("[kara] failed to launch node: {e}");
                     return Ok(());
                 }
             }
