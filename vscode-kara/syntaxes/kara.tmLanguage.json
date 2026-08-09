@@ -1,0 +1,100 @@
+{
+  "$schema": "https://raw.githubusercontent.com/martinring/tmlanguage/master/tmlanguage.json",
+  "name": "KARA",
+  "scopeName": "source.kara",
+  "fileTypes": ["kara"],
+  "patterns": [
+    { "include": "#comments" },
+    { "include": "#strings" },
+    { "include": "#numbers" },
+    { "include": "#keywords" },
+    { "include": "#components" },
+    { "include": "#customComponents" },
+    { "include": "#properties" },
+    { "include": "#builtins" },
+    { "include": "#punctuation" }
+  ],
+  "repository": {
+    "comments": {
+      "patterns": [
+        { "name": "comment.line.double-slash.kara", "match": "//.*$" },
+        {
+          "name": "comment.block.kara",
+          "begin": "/\\*",
+          "end": "\\*/"
+        }
+      ]
+    },
+    "strings": {
+      "patterns": [
+        {
+          "name": "string.quoted.double.kara",
+          "begin": "\"",
+          "end": "\"",
+          "beginCaptures": { "0": { "name": "punctuation.definition.string.begin.kara" } },
+          "endCaptures": { "0": { "name": "punctuation.definition.string.end.kara" } },
+          "patterns": [
+            {
+              "name": "constant.character.escape.kara",
+              "match": "\\\\(n|t|r|\\\\|\"|\\$)"
+            },
+            {
+              "name": "string.interpolated.kara",
+              "begin": "\\$\\{",
+              "end": "\\}",
+              "patterns": [{ "include": "#expressions" }]
+            }
+          ]
+        }
+      ]
+    },
+    "expressions": {
+      "patterns": [
+        { "include": "#numbers" },
+        { "include": "#builtins" },
+        { "match": "\\b(true|false)\\b", "name": "constant.language.boolean.kara" },
+        { "match": "\\b[a-zA-Z_][a-zA-Z0-9_]*\\b", "name": "variable.other.kara" },
+        {
+          "match": "==|!=|<=|>=|&&|\\|\\||[+\\-*/%<>=!]",
+          "name": "keyword.operator.kara"
+        }
+      ]
+    },
+    "numbers": {
+      "match": "\\b\\d+(\\.\\d+)?\\b",
+      "name": "constant.numeric.kara"
+    },
+    "keywords": {
+      "match": "\\b(App|component|fn|let|state|derived|if|else|while|for|in|return|import)\\b",
+      "name": "keyword.control.kara"
+    },
+    "components": {
+      "match": "\\b(Column|Row|Text|Button|TextInput|Checkbox|Select|Slider|Image)\\b",
+      "name": "support.class.component.kara"
+    },
+    "customComponents": {
+      "match": "\\b[A-Z][a-zA-Z0-9_]*\\b",
+      "name": "support.class.custom-component.kara"
+    },
+    "properties": {
+      "match": "\\b(value|text|id|bind|label|placeholder|src|width|height|color|fontSize|bold|align|spacing|padding|variant|type|options|min|max|step|onClick|onChange|title|theme|size)\\b",
+      "name": "support.type.property-name.kara"
+    },
+    "builtins": {
+      "patterns": [
+        {
+          "match": "\\b(Print|Alert|Random|Now|Length|Push|Log)\\b",
+          "name": "support.function.builtin.kara"
+        },
+        {
+          "match": "\\b(File|Http)\.[A-Za-z]+\\b",
+          "name": "support.function.builtin.kara"
+        }
+      ]
+    },
+    "punctuation": {
+      "match": "[{}\\[\\]():,;=]",
+      "name": "punctuation.kara"
+    }
+  }
+}

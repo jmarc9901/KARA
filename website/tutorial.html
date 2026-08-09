@@ -1,0 +1,204 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Tutorial — KARA in 15 minutes</title>
+    <meta name="description" content="A 15-minute hands-on KARA tutorial: first app, state, derived, binding, components and modules." />
+    <link rel="icon" type="image/svg+xml" href="assets/favicon.svg" />
+    <link rel="stylesheet" href="assets/style.css" />
+  </head>
+  <body>
+    <nav class="nav">
+      <div class="nav-inner">
+        <a class="brand" href="index.html"><img src="assets/logo.svg" alt="KARA" /> KARA</a>
+        <div class="nav-links">
+          <a href="getting-started.html">Getting started</a>
+          <a href="language.html">Language</a>
+          <a href="api.html">API</a>
+          <a href="examples.html">Examples</a>
+          <a class="active" href="tutorial.html">Tutorial</a>
+        </div>
+        <div class="nav-cta">
+          <a class="btn btn-primary btn-sm" href="playground.html">Playground</a>
+          <button class="nav-toggle" aria-label="Menu">☰</button>
+        </div>
+      </div>
+    </nav>
+
+    <article class="docs">
+      <h1>Tutorial — KARA in 15 minutes</h1>
+      <p class="subtitle">Type along in the <a href="playground.html">playground</a> (right side) or in a
+      local project with <code>kara dev</code>. You will build a small to-do app by the end.</p>
+
+      <div class="toc">
+        <a href="#step1">1 · Hello, KARA</a>
+        <a href="#step2">2 · State &amp; events</a>
+        <a href="#step3">3 · Derived values</a>
+        <a href="#step4">4 · Binding</a>
+        <a href="#step5">5 · Components</a>
+        <a href="#step6">6 · Modules</a>
+        <a href="#step7">7 · What's next</a>
+      </div>
+
+      <h2 id="step1">1 · Hello, KARA</h2>
+      <p>Every app is an <code>App</code> block. <code>title</code> and <code>size</code> are required;
+      <code>Column</code> stacks its children vertically:</p>
+      <pre class="code" data-code="s1"></pre>
+      <script type="text/kara" data-code="s1">App {
+  title: "Hello"
+  size: (360, 300)
+
+  Column {
+    Text { value: "Hello, KARA!" fontSize: 22 bold: true }
+  }
+}</script>
+      <p>Save and the window updates. Notice the JSON-like syntax and string interpolation
+      <code>"${...}"</code> — they are everywhere in KARA.</p>
+
+      <h2 id="step2">2 · State &amp; events</h2>
+      <p><code>state</code> declares a reactive variable. A <code>Button</code> mutates it from its
+      <code>onClick</code> handler. Widgets that need events must have an <code>id</code>:</p>
+      <pre class="code" data-code="s2"></pre>
+      <script type="text/kara" data-code="s2">App {
+  title: "Counter"
+  size: (360, 320)
+
+  state count = 0
+
+  Column {
+    Text { value: "Value: ${count}" fontSize: 26 bold: true }
+    Button { id: "inc" text: "+1" onClick: count = count + 1 }
+  }
+}</script>
+
+      <h2 id="step3">3 · Derived values</h2>
+      <p><code>derived</code> recomputes automatically. The compiler orders dependencies for you —
+      forward references work:</p>
+      <pre class="code" data-code="s3"></pre>
+      <script type="text/kara" data-code="s3">App {
+  title: "Even or odd"
+  size: (360, 320)
+
+  state count = 0
+  derived parity = count % 2 == 0
+
+  Column {
+    Text { value: "Value: ${count}" fontSize: 26 bold: true }
+    if (parity) {
+      Text { value: "Even" color: "#28c840" }
+    } else {
+      Text { value: "Odd" color: "#ff6369" }
+    }
+    Button { id: "inc" text: "+1" onClick: count = count + 1 }
+  }
+}</script>
+
+      <h2 id="step4">4 · Binding</h2>
+      <p><code>bind</code> links a widget to a state variable two-ways. <code>onChange</code> runs
+      after the update — perfect for saving:</p>
+      <pre class="code" data-code="s4"></pre>
+      <script type="text/kara" data-code="s4">App {
+  title: "Form"
+  size: (380, 420)
+
+  state name = "KARA"
+  state saved = ""
+  derived greeting = "Hello, " + name + "!"
+
+  Column {
+    padding: 20
+    spacing: 14
+    TextInput { id: "name" bind: name label: "Name" placeholder: "Your name" }
+    Text { value: "${greeting}" }
+    Button { id: "go" text: "Save" variant: "secondary" onClick: saved = name }
+    if (saved != "") {
+      Text { value: "Saved: ${saved}" color: "#28c840" }
+    }
+  }
+}</script>
+
+      <h2 id="step5">5 · Components</h2>
+      <p>Extract a reusable piece with <code>component</code>. Props are read-only; each instance
+      keeps <strong>its own state</strong>:</p>
+      <pre class="code" data-code="s5"></pre>
+      <script type="text/kara" data-code="s5">App {
+  title: "Cards"
+  size: (380, 460)
+
+  component Card(title, initial) {
+    state n = initial
+    derived double = n * 2
+    fn next() { return n + 1 }
+
+    Column {
+      padding: 14
+      spacing: 8
+      Text { value: "🎯 ${title}" bold: true fontSize: 17 }
+      Text { value: "n = ${n} · double = ${double}" }
+      Button { id: "plus" text: "+1" variant: "secondary" onClick: n = next() }
+    }
+  }
+
+  Column {
+    padding: 20
+    spacing: 14
+    Card { title: "A", initial: 1 }
+    Card { title: "B", initial: 10 }
+  }
+}</script>
+
+      <h2 id="step6">6 · Modules</h2>
+      <p>Move components and functions to their own file and <code>import</code> them. Imports go
+      before <code>App {</code> and resolve relative to the importing file:</p>
+      <pre class="code" data-code="s6"></pre>
+      <script type="text/kara" data-code="s6">// widgets.kara
+component Tag(text) {
+  Text { value: "🏷 ${text}" color: "#6c8bff" }
+}
+
+fn shout(s) { return s + "!" }
+
+// main.kara
+import "./widgets.kara"
+
+App {
+  title: "Modules"
+  size: (360, 320)
+
+  state msg = "hello"
+
+  Column {
+    padding: 20
+    spacing: 14
+    Tag { text: msg }
+    Text { value: shout(msg) }
+    Button { id: "up" text: "Shout again" onClick: msg = msg + "!" }
+  }
+}</script>
+
+      <h2 id="step7">7 · What's next</h2>
+      <ul>
+        <li>Read the <a href="language.html">language guide</a> for the full grammar.</li>
+        <li>Check the <a href="api.html">API reference</a> for every widget, prop and builtin.</li>
+        <li>Steal code from the <a href="examples.html">examples gallery</a>.</li>
+        <li>Wrap your app in a native window with <a href="getting-started.html#desktop">Tauri</a>.</li>
+      </ul>
+    </article>
+
+    <footer class="footer">
+      <div class="footer-inner">
+        <div class="brand">
+          <img src="assets/logo.svg" alt="KARA" style="width: 20px; height: 20px" />
+          <strong>KARA</strong> — © <span data-year>2026</span> Juan Marcos Bravo Medina (JMarc) · Apache-2.0
+        </div>
+        <div class="footer-links">
+          <a href="https://github.com/jmarc9901/KARA" target="_blank" rel="noopener">GitHub</a>
+          <a href="https://github.com/jmarc9901/KARA/tree/main/docs/es" target="_blank" rel="noopener">Docs (ES)</a>
+        </div>
+      </div>
+    </footer>
+
+    <script src="assets/main.js"></script>
+  </body>
+</html>

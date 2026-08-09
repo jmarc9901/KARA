@@ -1,0 +1,327 @@
+{
+  "title": "Parity",
+  "size": [
+    400,
+    500
+  ],
+  "theme": "dark",
+  "state": {
+    "items": {
+      "expr": {
+        "type": "Array",
+        "items": [
+          {
+            "type": "Str",
+            "parts": [
+              {
+                "text": "a"
+              }
+            ]
+          },
+          {
+            "type": "Str",
+            "parts": [
+              {
+                "text": "b"
+              }
+            ]
+          }
+        ]
+      },
+      "loc": {
+        "line": 5,
+        "col": 9
+      }
+    },
+    "n": {
+      "expr": {
+        "type": "Int",
+        "value": 2
+      },
+      "loc": {
+        "line": 6,
+        "col": 9
+      }
+    }
+  },
+  "derived": {
+    "doubled": {
+      "expr": {
+        "type": "Binary",
+        "op": "*",
+        "left": {
+          "type": "Var",
+          "name": "n"
+        },
+        "right": {
+          "type": "Int",
+          "value": 2
+        }
+      },
+      "loc": {
+        "line": 7,
+        "col": 11
+      }
+    },
+    "label": {
+      "expr": {
+        "type": "Binary",
+        "op": "+",
+        "left": {
+          "type": "Str",
+          "parts": [
+            {
+              "text": "n="
+            }
+          ]
+        },
+        "right": {
+          "type": "Var",
+          "name": "n"
+        }
+      },
+      "loc": {
+        "line": 8,
+        "col": 11
+      }
+    }
+  },
+  "fns": [
+    {
+      "name": "double",
+      "params": [
+        {
+          "name": "x"
+        }
+      ],
+      "body": [
+        {
+          "type": "Return",
+          "expr": {
+            "type": "Binary",
+            "op": "*",
+            "left": {
+              "type": "Var",
+              "name": "x"
+            },
+            "right": {
+              "type": "Int",
+              "value": 2
+            }
+          },
+          "loc": {
+            "index": 170,
+            "line": 9,
+            "col": 18
+          }
+        }
+      ]
+    }
+  ],
+  "ui": {
+    "type": "App",
+    "children": [
+      {
+        "type": "Column",
+        "props": {
+          "padding": 8
+        },
+        "children": [
+          {
+            "type": "Text",
+            "props": {
+              "value": [
+                {
+                  "expr": {
+                    "type": "Var",
+                    "name": "label"
+                  }
+                },
+                {
+                  "text": " / "
+                },
+                {
+                  "expr": {
+                    "type": "Var",
+                    "name": "doubled"
+                  }
+                }
+              ]
+            },
+            "children": [],
+            "loc": {
+              "index": 215,
+              "line": 12,
+              "col": 5
+            }
+          },
+          {
+            "type": "If",
+            "cond": {
+              "type": "Binary",
+              "op": ">",
+              "left": {
+                "type": "Var",
+                "name": "n"
+              },
+              "right": {
+                "type": "Int",
+                "value": 1
+              }
+            },
+            "children": [
+              {
+                "type": "Text",
+                "props": {
+                  "value": [
+                    {
+                      "text": "big"
+                    }
+                  ]
+                },
+                "children": [],
+                "loc": {
+                  "index": 278,
+                  "line": 14,
+                  "col": 7
+                }
+              }
+            ],
+            "else": [
+              {
+                "type": "Text",
+                "props": {
+                  "value": [
+                    {
+                      "text": "small"
+                    }
+                  ]
+                },
+                "children": [],
+                "loc": {
+                  "index": 319,
+                  "line": 16,
+                  "col": 7
+                }
+              }
+            ],
+            "loc": {
+              "index": 259,
+              "line": 13,
+              "col": 5
+            }
+          },
+          {
+            "type": "For",
+            "item": "item",
+            "iterable": {
+              "type": "Var",
+              "name": "items"
+            },
+            "children": [
+              {
+                "type": "Text",
+                "props": {
+                  "value": [
+                    {
+                      "text": "* "
+                    },
+                    {
+                      "expr": {
+                        "type": "Var",
+                        "name": "item"
+                      }
+                    }
+                  ]
+                },
+                "children": [],
+                "loc": {
+                  "index": 381,
+                  "line": 19,
+                  "col": 7
+                }
+              }
+            ],
+            "loc": {
+              "index": 353,
+              "line": 18,
+              "col": 5
+            }
+          },
+          {
+            "type": "Button",
+            "props": {
+              "id": "go",
+              "text": [
+                {
+                  "text": "Go"
+                }
+              ]
+            },
+            "children": [],
+            "loc": {
+              "index": 419,
+              "line": 21,
+              "col": 5
+            },
+            "onClick": [
+              {
+                "type": "Assign",
+                "target": "n",
+                "expr": {
+                  "type": "Binary",
+                  "op": "+",
+                  "left": {
+                    "type": "Var",
+                    "name": "n"
+                  },
+                  "right": {
+                    "type": "Int",
+                    "value": 1
+                  }
+                },
+                "loc": {
+                  "index": 459,
+                  "line": 21,
+                  "col": 45
+                }
+              },
+              {
+                "type": "Call",
+                "name": "Print",
+                "args": [
+                  {
+                    "type": "Str",
+                    "parts": [
+                      {
+                        "text": "x"
+                      }
+                    ]
+                  }
+                ],
+                "loc": {
+                  "index": 469,
+                  "line": 21,
+                  "col": 55
+                }
+              }
+            ]
+          }
+        ],
+        "loc": {
+          "index": 187,
+          "line": 10,
+          "col": 3
+        }
+      }
+    ]
+  },
+  "stateOrder": [
+    "items",
+    "n"
+  ],
+  "derivedOrder": [
+    "doubled",
+    "label"
+  ]
+}

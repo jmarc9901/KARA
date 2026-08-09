@@ -1,0 +1,53 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>KARA Playground — compile and run .kara in your browser</title>
+    <meta
+      name="description"
+      content="The KARA playground: write, compile and run .kara apps entirely in your browser."
+    />
+    <link rel="icon" type="image/svg+xml" href="assets/favicon.svg" />
+    <link rel="stylesheet" href="assets/style.css" />
+  </head>
+  <body>
+    <div class="pg">
+      <div class="pg-topbar">
+        <a class="brand" href="index.html">
+          <img src="assets/logo.svg" alt="KARA" style="width: 22px; height: 22px" />
+          KARA Playground
+        </a>
+        <label class="pg-preset">
+          Example
+          <select id="pg-preset"></select>
+        </label>
+        <span class="pg-status" id="pg-status">waiting…</span>
+      </div>
+
+      <div class="pg-layout">
+        <div class="pg-editor">
+          <div class="editor-wrap">
+            <pre class="pg-mirror"><code id="mirror"></code></pre>
+            <textarea id="src" spellcheck="false" aria-label="KARA source code"></textarea>
+          </div>
+          <div class="pg-errors" id="pg-errors"></div>
+        </div>
+
+        <div class="pg-right">
+          <div class="pg-tabs">
+            <button class="active" data-tab="preview">Preview</button>
+            <button data-tab="console">Console</button>
+            <button data-tab="ast">AST</button>
+            <button data-tab="ref">Reference</button>
+          </div>
+          <div class="pg-pane" id="pg-pane"></div>
+        </div>
+      </div>
+    </div>
+
+    <script src="assets/kara.js"></script>
+    <script src="assets/main.js"></script>
+    <script src="assets/playground.js"></script>
+  </body>
+</html>

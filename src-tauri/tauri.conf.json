@@ -1,0 +1,40 @@
+{
+  "$schema": "../node_modules/@tauri-apps/cli/config.schema.json",
+  "productName": "KARA",
+  "version": "0.3.0",
+  "identifier": "dev.kara.desktop",
+  "build": {
+    "frontendDist": "../ui/dist",
+    "devUrl": "http://localhost:5179"
+  },
+  "app": {
+    "windows": [
+      {
+        "label": "main",
+        "title": "KARA",
+        "width": 920,
+        "height": 680,
+        "minWidth": 480,
+        "minHeight": 360,
+        "center": true
+      }
+    ],
+    "security": {
+      "csp": null
+    }
+  },
+  "bundle": {
+    "active": true,
+    "targets": "all",
+    "icon": [
+      "icons/32x32.png",
+      "icons/128x128.png",
+      "icons/128x128@2x.png",
+      "icons/icon.icns",
+      "icons/icon.ico"
+    ],
+    "category": "DeveloperTool",
+    "shortDescription": "KARA — prototipa UIs reactivas de escritorio",
+    "longDescription": "KARA es un lenguaje y runtime para prototipar UIs reactivas de escritorio con un playground instantáneo: componentes con estado propio, reactividad declarativa y hot-reload."
+  }
+}

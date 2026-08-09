@@ -1,0 +1,5 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 128 128" role="img" aria-label="KARA">
+  <rect width="128" height="128" rx="28" fill="#0f1218"/>
+  <circle cx="64" cy="64" r="40" fill="none" stroke="#6c8bff" stroke-width="9"/>
+  <circle cx="64" cy="64" r="13" fill="#6c8bff"/>
+</svg>

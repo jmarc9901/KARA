@@ -1,0 +1,68 @@
+{
+  "name": "kara-lang",
+  "version": "0.3.0",
+  "description": "KARA — a language and runtime for prototyping reactive desktop UIs (web + Tauri)",
+  "type": "module",
+  "bin": {
+    "kara": "cli/kara.js"
+  },
+  "files": [
+    "cli",
+    "compiler",
+    "runtime",
+    "ui",
+    "docs",
+    "examples",
+    "src",
+    "scripts",
+    "website"
+  ],
+  "scripts": {
+    "dev": "node cli/kara.js dev",
+    "run": "node cli/kara.js run",
+    "build": "node cli/kara.js build",
+    "test": "node cli/kara.js test",
+    "doctor": "node cli/kara.js doctor",
+    "lsp": "node compiler/src/lsp.js",
+    "prepare": "node scripts/prepare.js",
+    "postinstall": "node scripts/prepare.js",
+    "test:compiler": "node --test compiler/test/parser.test.js compiler/test/sema.test.js compiler/test/expand.test.js compiler/test/modules.test.js",
+    "test:runtime": "node --test runtime/test/interpreter.test.js runtime/test/builtins.test.js",
+    "icons": "node scripts/gen-icon.js && tauri icon build/icon.png",
+    "desktop:dev": "tauri dev",
+    "desktop:build": "tauri build",
+    "web:build": "node website/build.mjs",
+    "web:preview": "node scripts/serve.js"
+  },
+  "engines": {
+    "node": ">=20.11"
+  },
+  "keywords": [
+    "kara",
+    "language",
+    "dsl",
+    "ui",
+    "desktop",
+    "compiler",
+    "interpreter",
+    "reactive",
+    "prototyping",
+    "tauri"
+  ],
+  "author": {
+    "name": "Juan Marcos Bravo Medina",
+    "url": "https://github.com/jmarc9901"
+  },
+  "license": "Apache-2.0",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/jmarc9901/KARA.git"
+  },
+  "bugs": {
+    "url": "https://github.com/jmarc9901/KARA/issues"
+  },
+  "homepage": "https://github.com/jmarc9901/KARA#readme",
+  "devDependencies": {
+    "@tauri-apps/cli": "^2.2.0"
+  }
+}

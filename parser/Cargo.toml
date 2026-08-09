@@ -1,0 +1,14 @@
+[package]
+name = "kara_parser"
+version = "0.2.0"
+edition = "2021"
+description = "KARA parser (Rust) — emite el mismo AST JSON que el compiler JS para que el runtime lo consuma"
+
+[[bin]]
+name = "kara-parser"
+path = "src/main.rs"
+
+[dependencies]
+# Sin feature "derive": evita compilar proc-macro2/syn/quote, que fallan en
+# entornos Windows con rutas que contienen espacios.
+serde_json = { version = "1", features = ["preserve_order"] }

@@ -1,0 +1,30 @@
+// Custom components: props, local state, derived values and fns of their own.
+// Each instance keeps its own state (expanded at compile time).
+App {
+  title: "Components"
+  size: (420, 560)
+
+  component Item(title, initial) {
+    state n = initial
+    derived double = n * 2
+    fn next() { return n + 1 }
+
+    Column {
+      padding: 14
+      spacing: 8
+      Text { value: "🎯 ${title}" bold: true fontSize: 17 }
+      Text { value: "n = ${n}  ·  double = ${double}" }
+      Button { id: "plus" text: "+1" variant: "secondary" onClick: n = next() }
+    }
+  }
+
+  state extra = 10
+
+  Column {
+    padding: 20
+    spacing: 14
+    Text { value: "Each card is an instance with its own state" fontSize: 16 color: "#8b95ab" }
+    Item { title: "Card A", initial: 1 }
+    Item { title: "Card B", initial: extra }
+  }
+}

@@ -1,0 +1,23 @@
+// Form: TextInput/Checkbox binding + derived greeting.
+App {
+  title: "Form"
+  size: (380, 480)
+  theme: "dark"
+
+  state name = "KARA"
+  state ok = false
+  derived greeting = "Hello, " + name + "!"
+
+  Column {
+    padding: 20
+    spacing: 14
+    TextInput { id: "nameInput" bind: name label: "Name" placeholder: "Enter your name" }
+    Checkbox { id: "agree" bind: ok label: "I agree to the terms" }
+    if (ok) {
+      Text { value: "${greeting}" fontSize: 20 bold: true color: "#6c8bff" }
+    } else {
+      Text { value: "Check the box to say hello" color: "#8b95ab" }
+    }
+    Button { id: "go" text: "Greet" variant: "secondary" onClick: Alert(greeting) }
+  }
+}

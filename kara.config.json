@@ -1,0 +1,6 @@
+{
+  "name": "kara-demo",
+  "entry": "src/main.kara",
+  "outDir": "build",
+  "port": 5179
+}

@@ -1,0 +1,22 @@
+// Counter with derived state and conditional rendering.
+App {
+  title: "Counter"
+  size: (360, 420)
+
+  state count = 0
+  derived even = count % 2 == 0
+
+  Column {
+    padding: 20
+    spacing: 14
+    Text { value: "Value: ${count}" fontSize: 26 bold: true }
+    if (even) {
+      Text { value: "Even" color: "#28c840" }
+    } else {
+      Text { value: "Odd" color: "#ff6369" }
+    }
+    Button { id: "inc" text: "Increment" onClick: count = count + 1 }
+    Button { id: "dec" text: "Decrement" variant: "secondary" onClick: count = count - 1 }
+    Button { id: "reset" text: "Reset" variant: "ghost" onClick: count = 0 }
+  }
+}

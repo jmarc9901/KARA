@@ -1,0 +1,143 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>API reference — KARA</title>
+    <meta name="description" content="KARA API reference: App props, widgets, props, handlers, builtins, keywords and CLI." />
+    <link rel="icon" type="image/svg+xml" href="assets/favicon.svg" />
+    <link rel="stylesheet" href="assets/style.css" />
+  </head>
+  <body>
+    <nav class="nav">
+      <div class="nav-inner">
+        <a class="brand" href="index.html"><img src="assets/logo.svg" alt="KARA" /> KARA</a>
+        <div class="nav-links">
+          <a href="getting-started.html">Getting started</a>
+          <a href="language.html">Language</a>
+          <a class="active" href="api.html">API</a>
+          <a href="examples.html">Examples</a>
+          <a href="tutorial.html">Tutorial</a>
+        </div>
+        <div class="nav-cta">
+          <a class="btn btn-primary btn-sm" href="playground.html">Playground</a>
+          <button class="nav-toggle" aria-label="Menu">☰</button>
+        </div>
+      </div>
+    </nav>
+
+    <article class="docs">
+      <h1>API reference</h1>
+      <p class="subtitle">Widgets, props, handlers, builtins, keywords and the CLI. Source of truth:
+      <code>COMPONENT_SCHEMA</code> in <code>compiler/src/parser.js</code>.</p>
+
+      <div class="toc">
+        <a href="#app">App</a>
+        <a href="#widgets">Widgets</a>
+        <a href="#handlers">Handlers</a>
+        <a href="#builtins">Builtins</a>
+        <a href="#language">Language</a>
+        <a href="#cli">CLI</a>
+      </div>
+
+      <h2 id="app">App properties</h2>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>Prop</th><th>Type</th><th>Required</th><th>Notes</th></tr></thead>
+          <tbody>
+            <tr><td><code>title</code></td><td>Str</td><td>yes</td><td>Window title</td></tr>
+            <tr><td><code>size</code></td><td>(Int, Int)</td><td>yes</td><td>(width, height) of the app</td></tr>
+            <tr><td><code>theme</code></td><td>"light" | "dark"</td><td>no</td><td>Default "light"</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <h2 id="widgets">Widgets</h2>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>Widget</th><th>Kind</th><th>Props</th></tr></thead>
+          <tbody>
+            <tr><td><code>Column</code></td><td>container</td><td><code>spacing</code>, <code>padding</code>, <code>align</code> (start|center|end|stretch)</td></tr>
+            <tr><td><code>Row</code></td><td>container</td><td><code>spacing</code>, <code>padding</code>, <code>align</code> (start|center|end|stretch)</td></tr>
+            <tr><td><code>Text</code></td><td>leaf</td><td><code>value</code> <strong>req.</strong>, <code>fontSize</code>, <code>color</code>, <code>bold</code>, <code>align</code> (left|center|right)</td></tr>
+            <tr><td><code>Button</code></td><td>leaf</td><td><code>id</code> <strong>req.</strong>, <code>text</code> <strong>req.</strong>, <code>variant</code> (primary|secondary|ghost), <code>color</code> — requires <code>onClick</code></td></tr>
+            <tr><td><code>TextInput</code></td><td>leaf</td><td><code>id</code> <strong>req.</strong>, <code>bind</code>, <code>placeholder</code>, <code>label</code>, <code>type</code> (text|password)</td></tr>
+            <tr><td><code>Checkbox</code></td><td>leaf</td><td><code>id</code> <strong>req.</strong>, <code>bind</code>, <code>label</code></td></tr>
+            <tr><td><code>Select</code></td><td>leaf</td><td><code>id</code> <strong>req.</strong>, <code>options</code> <strong>req.</strong> (string list), <code>bind</code>, <code>label</code></td></tr>
+            <tr><td><code>Slider</code></td><td>leaf</td><td><code>id</code> <strong>req.</strong>, <code>bind</code>, <code>label</code>, <code>min</code>, <code>max</code>, <code>step</code></td></tr>
+            <tr><td><code>Image</code></td><td>leaf</td><td><code>src</code> <strong>req.</strong>, <code>width</code>, <code>height</code></td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <h2 id="handlers">Handlers</h2>
+      <ul>
+        <li><code>onClick</code> — only on <code>Button</code>. A statement or a block of statements.</li>
+        <li><code>onChange</code> — on <code>TextInput</code>, <code>Select</code>, <code>Slider</code>,
+        <code>Checkbox</code>. Runs <strong>after</strong> the bound variable is updated.</li>
+      </ul>
+
+      <h2 id="builtins">Builtins</h2>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>Builtin</th><th>Signature</th><th>Returns</th><th>Available</th></tr></thead>
+          <tbody>
+            <tr><td><code>Print(...)</code></td><td>variadic</td><td>Null</td><td>always</td></tr>
+            <tr><td><code>Log(...)</code></td><td>variadic</td><td>Null</td><td>always (alias of Print)</td></tr>
+            <tr><td><code>Alert(...)</code></td><td>variadic</td><td>Null</td><td>always (dialog)</td></tr>
+            <tr><td><code>Random(a, b)</code></td><td>Int, Int</td><td>Int</td><td>always</td></tr>
+            <tr><td><code>Now()</code></td><td>—</td><td>Int (epoch ms)</td><td>always</td></tr>
+            <tr><td><code>Length(x)</code></td><td>Any</td><td>Int</td><td>always (arrays, strings)</td></tr>
+            <tr><td><code>Push(list, ...)</code></td><td>Array, Any</td><td>Array</td><td>always (immutable)</td></tr>
+            <tr><td><code>File.Read(path)</code></td><td>Str</td><td>Str</td><td>desktop runtime only</td></tr>
+            <tr><td><code>File.Write(path, data)</code></td><td>Str, Any</td><td>Null</td><td>desktop runtime only</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <h2 id="language">Language</h2>
+      <p><strong>Keywords:</strong> <code>App</code> <code>component</code> <code>fn</code>
+      <code>let</code> <code>state</code> <code>derived</code> <code>if</code> <code>else</code>
+      <code>while</code> <code>for</code> <code>in</code> <code>return</code> <code>import</code>
+      <code>true</code> <code>false</code></p>
+      <p><strong>Types:</strong> <code>Int</code>, <code>Float</code>, <code>Bool</code>,
+      <code>Str</code>, <code>Array</code>, <code>Any</code>, <code>Null</code>, <code>Unknown</code></p>
+      <p><strong>String interpolation:</strong> <code>"Hello ${name}"</code> — any expression inside
+      <code>${...}</code>.</p>
+
+      <h2 id="cli">CLI</h2>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>Command</th><th>What it does</th></tr></thead>
+          <tbody>
+            <tr><td><code>kara dev [entry]</code></td><td>Builds the UI if needed, starts the runtime with hot-reload</td></tr>
+            <tr><td><code>kara run [entry]</code></td><td>Alias for dev</td></tr>
+            <tr><td><code>kara build [entry]</code></td><td>Compiles the entry → <code>build/ast.json</code></td></tr>
+            <tr><td><code>kara test</code></td><td>Runs the compiler and runtime test suites (100 tests)</td></tr>
+            <tr><td><code>kara doctor</code></td><td>Diagnoses the environment</td></tr>
+            <tr><td><code>kara new &lt;name&gt;</code></td><td>Creates a project in <code>./&lt;name&gt;</code></td></tr>
+            <tr><td><code>kara lsp</code></td><td>Starts the language server (JSON-RPC 2.0 over stdio)</td></tr>
+            <tr><td><code>kara version</code></td><td>Prints the KARA version</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <p>Config file <code>kara.config.json</code>: <code>entry</code>, <code>outDir</code>,
+      <code>port</code>. Resolved from the nearest project above the entry or the cwd.</p>
+    </article>
+
+    <footer class="footer">
+      <div class="footer-inner">
+        <div class="brand">
+          <img src="assets/logo.svg" alt="KARA" style="width: 20px; height: 20px" />
+          <strong>KARA</strong> — © <span data-year>2026</span> Juan Marcos Bravo Medina (JMarc) · Apache-2.0
+        </div>
+        <div class="footer-links">
+          <a href="https://github.com/jmarc9901/KARA" target="_blank" rel="noopener">GitHub</a>
+          <a href="https://github.com/jmarc9901/KARA/tree/main/docs/es" target="_blank" rel="noopener">Docs (ES)</a>
+        </div>
+      </div>
+    </footer>
+
+    <script src="assets/main.js"></script>
+  </body>
+</html>

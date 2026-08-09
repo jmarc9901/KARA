@@ -1,0 +1,16 @@
+App {
+  title: "Counter"
+  size: (400, 300)
+
+  state count = 0
+
+  Column {
+    Text { value: "Value: ${count}" }
+
+    Button {
+      id: "inc"
+      text: "Increment"
+      onClick: count = count + 1
+    }
+  }
+}

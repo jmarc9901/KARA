@@ -1,0 +1,86 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+jobs:
+  node:
+    name: Node (compiler + runtime + ui)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+          cache-dependency-path: |
+            runtime/package-lock.json
+            ui/package-lock.json
+
+      - name: Install runtime deps
+        run: npm --prefix runtime ci
+
+      - name: Compiler tests
+        run: node --test compiler/test/parser.test.js compiler/test/sema.test.js compiler/test/expand.test.js compiler/test/modules.test.js compiler/test/lsp.test.js
+
+      - name: Runtime tests
+        run: node --test runtime/test/interpreter.test.js runtime/test/builtins.test.js
+
+      - name: Install UI deps + build
+        run: |
+          npm --prefix ui ci
+          npm --prefix ui run build
+
+      - name: CLI smoke (build + doctor)
+        run: |
+          node cli/kara.js build
+          node cli/kara.js doctor
+
+      - name: Website bundle is up to date
+        run: |
+          node website/build.mjs
+          git diff --exit-code -- website/assets/kara.js || {
+            echo "::error::website/assets/kara.js is stale — run \"npm run web:build\" and commit the result"
+            exit 1
+          }
+
+  rust:
+    name: Rust (parser)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: dtolnay/rust-toolchain@stable
+
+      - name: Build
+        run: cargo build --manifest-path parser/Cargo.toml
+
+      - name: Test
+        run: cargo test --manifest-path parser/Cargo.toml
+
+      - name: Parse demo (smoke)
+        run: |
+          parser/target/debug/kara-parser src/main.kara build
+          test -f build/ast.json && echo "ast.json ok"
+
+  tauri:
+    name: Rust (desktop shell)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: dtolnay/rust-toolchain@stable
+
+      - name: Install system deps (Tauri on Linux)
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y libwebkit2gtk-4.1-dev libappindicator3-dev librsvg2-dev patchelf
+
+      - name: Install npm deps (@tauri-apps/cli)
+        run: npm ci
+
+      - name: Check desktop shell compiles
+        run: cargo check --manifest-path src-tauri/Cargo.toml

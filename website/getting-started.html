@@ -1,0 +1,137 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Getting started — KARA</title>
+    <meta name="description" content="Install KARA, create your first project and run a reactive desktop UI in minutes." />
+    <link rel="icon" type="image/svg+xml" href="assets/favicon.svg" />
+    <link rel="stylesheet" href="assets/style.css" />
+  </head>
+  <body>
+    <nav class="nav">
+      <div class="nav-inner">
+        <a class="brand" href="index.html"><img src="assets/logo.svg" alt="KARA" /> KARA</a>
+        <div class="nav-links">
+          <a class="active" href="getting-started.html">Getting started</a>
+          <a href="language.html">Language</a>
+          <a href="api.html">API</a>
+          <a href="examples.html">Examples</a>
+          <a href="tutorial.html">Tutorial</a>
+        </div>
+        <div class="nav-cta">
+          <a class="btn btn-primary btn-sm" href="playground.html">Playground</a>
+          <button class="nav-toggle" aria-label="Menu">☰</button>
+        </div>
+      </div>
+    </nav>
+
+    <article class="docs">
+      <h1>Getting started</h1>
+      <p class="subtitle">From zero to a running reactive UI in about two minutes.</p>
+
+      <div class="toc">
+        <a href="#requirements">Requirements</a>
+        <a href="#install">Install</a>
+        <a href="#first-app">Your first app</a>
+        <a href="#hot-reload">Hot reload</a>
+        <a href="#editor">Editor &amp; LSP</a>
+        <a href="#desktop">Desktop (Tauri)</a>
+      </div>
+
+      <h2 id="requirements">Requirements</h2>
+      <p><strong>Node.js ≥ 20.11</strong> and npm. That's it. The Rust toolchain and Tauri are only
+      needed for the desktop shell (see <a href="#desktop">below</a>).</p>
+
+      <h2 id="install">Install</h2>
+      <p>KARA is distributed as a single npm package that self-prepares its runtime and UI on install:</p>
+      <pre class="code" data-code="install"></pre>
+      <script type="text/kara" data-code="install">npm install -g kara-lang
+kara --version</script>
+      <p>Not published yet? Run straight from the repository (development mode):</p>
+      <pre class="code" data-code="dev"></pre>
+      <script type="text/kara" data-code="dev">git clone https://github.com/jmarc9901/KARA
+cd kara
+npm install
+npm link          # exposes `kara` on your PATH</script>
+
+      <h2 id="first-app">Your first app</h2>
+      <p>Create a project and start the dev server with hot-reload:</p>
+      <pre class="code" data-code="new"></pre>
+      <script type="text/kara" data-code="new">kara new my-app
+cd my-app
+kara dev          # → http://localhost:5179</script>
+      <p>Open <code>src/main.kara</code> and make it yours:</p>
+      <pre class="code" data-code="app"></pre>
+      <script type="text/kara" data-code="app">App {
+  title: "Counter"
+  size: (400, 300)
+
+  state count = 0
+
+  Column {
+    Text { value: "Value: ${count}" }
+
+    Button {
+      id: "inc"
+      text: "Increment"
+      onClick: count = count + 1
+    }
+  }
+}</script>
+      <p>Save the file — the app reloads instantly and the window updates. The browser page at
+      <code>localhost:5179</code> is the dev UI; the same program runs inside a native window via
+      Tauri later.</p>
+
+      <h2 id="hot-reload">Hot reload</h2>
+      <p><code>kara dev</code> watches every <code>.kara</code> file in the project (including imported
+      modules) and rebuilds on change. Compile errors appear in the browser with
+      <code>line/col</code> and a caret into the source; runtime errors show the offending line too.</p>
+
+      <h2 id="editor">Editor &amp; LSP</h2>
+      <p>KARA ships a <strong>zero-dependency language server</strong>:</p>
+      <pre class="code" data-code="lsp"></pre>
+      <script type="text/kara" data-code="lsp">kara lsp   # JSON-RPC 2.0 over stdio — connect any LSP client</script>
+      <p>The <strong>VS Code extension</strong> (<code>kara-lang</code>) adds syntax highlighting, live
+      diagnostics while you type, type hovers and autocompletion, plus <code>KARA: Run</code> and
+      <code>KARA: New project</code> commands.</p>
+
+      <h2 id="desktop">Desktop (Tauri)</h2>
+      <p>The <code>src-tauri/</code> shell opens a native window that points at the local runtime. This
+      requires a Rust toolchain ≥ 1.77 and the Tauri CLI:</p>
+      <pre class="code" data-code="tauri"></pre>
+      <script type="text/kara" data-code="tauri">npm install          # installs @tauri-apps/cli
+npm --prefix ui run build
+tauri dev            # native window + hot-reload
+tauri build          # .exe / .app / AppImage</script>
+      <blockquote class="callout">
+        <strong>Status:</strong> the desktop runtime currently launches as an external <code>node</code>
+        process. Embedding Node in the binary is the main packaging gap on the roadmap
+        (<a href="language.html">see positioning</a>).
+      </blockquote>
+
+      <h2>Next steps</h2>
+      <ul>
+        <li>Learn the language: <a href="language.html">Language guide</a></li>
+        <li>Full widget/builtin reference: <a href="api.html">API reference</a></li>
+        <li>Ready-made apps to steal: <a href="examples.html">Examples</a></li>
+        <li>15-minute hands-on walkthrough: <a href="tutorial.html">Tutorial</a></li>
+      </ul>
+    </article>
+
+    <footer class="footer">
+      <div class="footer-inner">
+        <div class="brand">
+          <img src="assets/logo.svg" alt="KARA" style="width: 20px; height: 20px" />
+          <strong>KARA</strong> — © <span data-year>2026</span> Juan Marcos Bravo Medina (JMarc) · Apache-2.0
+        </div>
+        <div class="footer-links">
+          <a href="https://github.com/jmarc9901/KARA" target="_blank" rel="noopener">GitHub</a>
+          <a href="https://github.com/jmarc9901/KARA/tree/main/docs/es" target="_blank" rel="noopener">Docs (ES)</a>
+        </div>
+      </div>
+    </footer>
+
+    <script src="assets/main.js"></script>
+  </body>
+</html>

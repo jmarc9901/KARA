@@ -1,0 +1,24 @@
+// Modules: import components and functions from another .kara file.
+//   kara dev examples/modulos.kara
+
+import "./widgets.kara"
+
+App {
+  title: "Modules"
+  size: (420, 500)
+
+  state clicks = 0
+  state level = 3
+  derived double = max(clicks, level) * 2
+
+  Column {
+    padding: 20
+    spacing: 14
+    Text { value: "Components imported from widgets.kara" fontSize: 15 color: "#8b95ab" }
+    Card { title: "Counter", body: "Clicks: ${clicks}" }
+    Card { title: "Level", body: "Level: ${level}" }
+    Slider { id: "level" bind: level label: "Adjust the level" min: 1 max: 10 }
+    Button { id: "inc" text: "Increment" variant: "secondary" onClick: clicks = clicks + 1 }
+    Text { value: "Max × 2: ${double}" }
+  }
+}

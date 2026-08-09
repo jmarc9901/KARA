@@ -1,0 +1,57 @@
+{
+  "name": "kara-lang",
+  "displayName": "KARA",
+  "description": "KARA language and runtime: syntax highlighting, live diagnostics (LSP), type hovers and autocompletion",
+  "version": "0.3.0",
+  "publisher": "jmarc9901",
+  "license": "Apache-2.0",
+  "author": {
+    "name": "Juan Marcos Bravo Medina",
+    "url": "https://github.com/jmarc9901"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/jmarc9901/KARA.git"
+  },
+  "main": "./src/extension.js",
+  "engines": {
+    "vscode": "^1.75.0"
+  },
+  "categories": ["Programming Languages"],
+  "keywords": ["kara", "language", "dsl", "ui"],
+  "activationEvents": ["onLanguage:kara"],
+  "contributes": {
+    "languages": [
+      {
+        "id": "kara",
+        "aliases": ["KARA", "kara"],
+        "extensions": [".kara"],
+        "configuration": "./language-configuration.json"
+      }
+    ],
+    "grammars": [
+      {
+        "language": "kara",
+        "scopeName": "source.kara",
+        "path": "./syntaxes/kara.tmLanguage.json"
+      }
+    ],
+    "commands": [
+      {
+        "command": "kara.run",
+        "title": "KARA: Run"
+      },
+      {
+        "command": "kara.newProject",
+        "title": "KARA: New project"
+      }
+    ]
+  },
+  "scripts": {
+    "prepublish": "node scripts/prepublish.mjs",
+    "package": "node scripts/prepublish.mjs && vsce package --allow-missing-repository"
+  },
+  "devDependencies": {
+    "@vscode/vsce": "^2.24.0"
+  }
+}

@@ -1,0 +1,189 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Language guide — KARA</title>
+    <meta name="description" content="KARA language guide: App, state, derived, components, events, widgets and builtins." />
+    <link rel="icon" type="image/svg+xml" href="assets/favicon.svg" />
+    <link rel="stylesheet" href="assets/style.css" />
+  </head>
+  <body>
+    <nav class="nav">
+      <div class="nav-inner">
+        <a class="brand" href="index.html"><img src="assets/logo.svg" alt="KARA" /> KARA</a>
+        <div class="nav-links">
+          <a href="getting-started.html">Getting started</a>
+          <a class="active" href="language.html">Language</a>
+          <a href="api.html">API</a>
+          <a href="examples.html">Examples</a>
+          <a href="tutorial.html">Tutorial</a>
+        </div>
+        <div class="nav-cta">
+          <a class="btn btn-primary btn-sm" href="playground.html">Playground</a>
+          <button class="nav-toggle" aria-label="Menu">☰</button>
+        </div>
+      </div>
+    </nav>
+
+    <article class="docs">
+      <h1>Language guide</h1>
+      <p class="subtitle">A minimal, readable DSL: declarative UI, imperative logic, reactive state.</p>
+
+      <div class="toc">
+        <a href="#app">App</a>
+        <a href="#types">Types</a>
+        <a href="#state">State &amp; derived</a>
+        <a href="#fns">Functions</a>
+        <a href="#flow">Control flow</a>
+        <a href="#ui">UI tree</a>
+        <a href="#components">Components</a>
+        <a href="#events">Events</a>
+        <a href="#modules">Modules</a>
+      </div>
+
+      <h2 id="app">App — the root</h2>
+      <p>Every program is an <code>App</code> block with a <code>title</code>, a <code>size</code> and
+      (optionally) <code>theme: "light" | "dark"</code>:</p>
+      <pre class="code" data-code="app"></pre>
+      <script type="text/kara" data-code="app">App {
+  title: "My app"
+  size: (400, 560)
+  theme: "dark"
+
+  state count = 0
+
+  Column {
+    Text { value: "Value: ${count}" }
+  }
+}</script>
+
+      <h2 id="types">Types &amp; type checking</h2>
+      <p>Primitives: <code>Int</code>, <code>Float</code>, <code>Bool</code>, <code>Str</code>, plus
+      <code>Array</code> and the explicit dynamic escape hatch <code>Any</code>. The language is dynamic
+      at runtime, but the compiler runs a <strong>static pre-pass with inference</strong>:</p>
+      <pre class="code" data-code="types"></pre>
+      <script type="text/kara" data-code="types">let x = 5          // Int
+let d = 10 / 4     // Float — division always returns Float
+let s = "n: " + x  // Str — "+" concatenates when either side is a Str
+let z = x * "a"    // TypeError: cannot apply "*" to Int and Str</script>
+      <p>Arithmetic on incompatible types, mixed-type comparisons, wrong assignment types and wrong
+      call arity are all caught before execution.</p>
+
+      <h2 id="state">State &amp; derived</h2>
+      <p><code>state</code> holds reactive values; <code>derived</code> computes values from them. The
+      compiler orders <code>derived</code> by a <strong>dependency graph</strong>, so forward references
+      work and cycles are errors:</p>
+      <pre class="code" data-code="derived"></pre>
+      <script type="text/kara" data-code="derived">state base = 2
+
+derived a = b + 1   // forward reference — fine
+derived b = c * 2
+derived c = base + 1
+// a = 7, b = 6, c = 3 — evaluated in dependency order</script>
+
+      <h2 id="fns">Functions</h2>
+      <pre class="code" data-code="fns"></pre>
+      <script type="text/kara" data-code="fns">fn max(a, b) {
+  if (a > b) { return a }
+  return b
+}
+
+Button { id: "go" text: "Go" onClick: result = max(3, 9) }</script>
+
+      <h2 id="flow">Control flow</h2>
+      <pre class="code" data-code="flow"></pre>
+      <script type="text/kara" data-code="flow">if (ok) { ... } else if (other) { ... } else { ... }
+while (running) { ... }
+for (item in items) { ... }</script>
+
+      <h2 id="ui">The UI tree</h2>
+      <p>Containers (<code>Column</code>, <code>Row</code>) nest leaves (<code>Text</code>,
+      <code>Button</code>, <code>TextInput</code>, <code>Checkbox</code>, <code>Select</code>,
+      <code>Slider</code>, <code>Image</code>). The tree supports <code>if</code> and <code>for</code>
+      nodes:</p>
+      <pre class="code" data-code="ui"></pre>
+      <script type="text/kara" data-code="ui">Column {
+  padding: 20
+  spacing: 12
+
+  for (item in items) {
+    Text { value: "• ${item}" }
+  }
+
+  if (Length(items) == 0) {
+    Text { value: "Nothing here yet 🎉" color: "#28c840" }
+  }
+
+  Button { id: "add" text: "Add" onClick: items = Push(items, newTask) }
+}</script>
+
+      <h2 id="components">Custom components</h2>
+      <p>Components take <strong>props</strong> and keep their <strong>own state</strong>: every
+      instance is expanded at compile time with unique names, so instances are fully isolated:</p>
+      <pre class="code" data-code="comp"></pre>
+      <script type="text/kara" data-code="comp">component Item(title, initial) {
+  state n = initial
+  derived double = n * 2
+  fn next() { return n + 1 }
+
+  Column {
+    padding: 14
+    spacing: 8
+    Text { value: "🎯 ${title}" bold: true fontSize: 17 }
+    Text { value: "n = ${n} · double = ${double}" }
+    Button { id: "plus" text: "+1" variant: "secondary" onClick: n = next() }
+  }
+}
+
+Column {
+  Item { title: "Card A", initial: 1 }
+  Item { title: "Card B", initial: 10 }
+}</script>
+
+      <h2 id="events">Events &amp; binding</h2>
+      <p><code>onClick</code> runs on <code>Button</code>; bound widgets (<code>TextInput</code>,
+      <code>Select</code>, <code>Slider</code>, <code>Checkbox</code>) support <code>bind</code> plus
+      an <code>onChange</code> handler that runs <strong>after</strong> the variable is updated:</p>
+      <pre class="code" data-code="events"></pre>
+      <script type="text/kara" data-code="events">state name = "KARA"
+state saved = ""
+
+TextInput {
+  id: "name"
+  bind: name
+  placeholder: "Your name"
+  onChange: saved = name
+}</script>
+
+      <h2 id="modules">Modules</h2>
+      <p>Split your app into files. Imports go before <code>App {</code>, resolve relative to the
+      importing file, dedupe, and tolerate cycles:</p>
+      <pre class="code" data-code="mod"></pre>
+      <script type="text/kara" data-code="mod">import "./widgets.kara"
+
+App {
+  title: "Modules"
+  size: (400, 480)
+
+  Card { title: "A", initial: 1 }
+}</script>
+      <p>See the <a href="api.html">API reference</a> for the complete widget, prop and builtin tables.</p>
+    </article>
+
+    <footer class="footer">
+      <div class="footer-inner">
+        <div class="brand">
+          <img src="assets/logo.svg" alt="KARA" style="width: 20px; height: 20px" />
+          <strong>KARA</strong> — © <span data-year>2026</span> Juan Marcos Bravo Medina (JMarc) · Apache-2.0
+        </div>
+        <div class="footer-links">
+          <a href="https://github.com/jmarc9901/KARA" target="_blank" rel="noopener">GitHub</a>
+          <a href="https://github.com/jmarc9901/KARA/tree/main/docs/es" target="_blank" rel="noopener">Docs (ES)</a>
+        </div>
+      </div>
+    </footer>
+
+    <script src="assets/main.js"></script>
+  </body>
+</html>

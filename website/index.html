@@ -1,0 +1,240 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>KARA — the tiny language for reactive desktop UIs</title>
+    <meta
+      name="description"
+      content="KARA is a language and runtime for prototyping reactive desktop UIs: declarative UI, imperative logic, reactive state, a real compiler, LSP and a browser playground."
+    />
+    <link rel="icon" type="image/svg+xml" href="assets/favicon.svg" />
+    <link rel="stylesheet" href="assets/style.css" />
+  </head>
+  <body>
+    <nav class="nav">
+      <div class="nav-inner">
+        <a class="brand" href="index.html">
+          <img src="assets/logo.svg" alt="KARA logo" />
+          KARA <span class="tag">reactive desktop UI language</span>
+        </a>
+        <div class="nav-links">
+          <a href="getting-started.html">Getting started</a>
+          <a href="language.html">Language</a>
+          <a href="api.html">API</a>
+          <a href="examples.html">Examples</a>
+          <a href="tutorial.html">Tutorial</a>
+        </div>
+        <div class="nav-cta">
+          <a class="btn btn-primary btn-sm" href="playground.html">Playground</a>
+          <a class="btn btn-ghost btn-sm" href="https://github.com/jmarc9901/KARA" target="_blank" rel="noopener">GitHub</a>
+          <button class="nav-toggle" aria-label="Menu">☰</button>
+        </div>
+      </div>
+    </nav>
+
+    <header class="hero">
+      <div class="hero-inner">
+        <div class="hero-badge rise"><span class="dot"></span> v0.3 · Apache-2.0 · real compiler + LSP + playground</div>
+        <h1 class="rise rise-1">The tiny language for<br /><span class="accent">reactive desktop UIs</span></h1>
+        <p class="lead rise rise-2">
+          Declarative UI. Imperative logic. Reactive state with a dependency graph. A real compiler
+          with static type inference, a zero-dependency LSP and a browser playground —
+          prototype a desktop app in 30 seconds.
+        </p>
+        <div class="hero-actions rise rise-3">
+          <a class="btn btn-primary" href="playground.html">▶ Try the playground</a>
+          <a class="btn btn-ghost" href="getting-started.html">Get started</a>
+          <a class="btn btn-ghost" href="https://github.com/jmarc9901/KARA" target="_blank" rel="noopener">★ Star on GitHub</a>
+        </div>
+        <p class="hero-meta rise rise-3">Compiles · type-checks · interprets · hot-reloads · 100 tests</p>
+      </div>
+    </header>
+
+    <section class="section" style="padding-top: 0">
+      <div class="showcase">
+        <div>
+          <pre class="code" data-code="hero"></pre>
+          <script type="text/kara" data-code="hero">App {
+  title: "Counter"
+  size: (380, 420)
+
+  state count = 0
+  derived even = count % 2 == 0
+
+  Column {
+    padding: 20
+    spacing: 14
+    Text { value: "Value: ${count}" fontSize: 30 bold: true }
+    if (even) {
+      Text { value: "Even" color: "#28c840" }
+    } else {
+      Text { value: "Odd" color: "#ff6369" }
+    }
+    Button { id: "inc" text: "Increment" onClick: count = count + 1 }
+    Button { id: "reset" text: "Reset" variant: "ghost" onClick: count = 0 }
+  }
+}</script>
+          <p style="color: var(--faint); font-size: 13px; margin: 10px 2px 0">
+            This snippet is <strong style="color: var(--dim)">actually running</strong> — compiled and
+            interpreted by the KARA compiler, live in your browser.
+          </p>
+        </div>
+        <div class="window-card">
+          <div class="titlebar">
+            <span class="traffic"><span class="r"></span><span class="y"></span><span class="g"></span></span>
+            <span class="wtitle">Counter</span>
+          </div>
+          <div class="wbody" id="hero-demo">
+            <div class="big">Value: <span id="hero-val">0</span></div>
+            <div class="ok" id="hero-parity" style="font-weight: 700">Even</div>
+            <button class="wbtn" id="hero-inc">Increment</button>
+            <button class="wbtn" id="hero-reset" style="background: transparent; color: var(--dim); border: 1px solid var(--border); box-shadow: none">Reset</button>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="section" style="padding-top: 0">
+      <div class="section-head">
+        <div class="kicker">Why KARA</div>
+        <h2>Three ideas, one small language</h2>
+        <p>No runtime magic, no hidden frameworks. Just a language that does exactly what it says.</p>
+      </div>
+      <div class="grid">
+        <div class="card">
+          <div class="icon">🧩</div>
+          <h3>Declarative UI</h3>
+          <p>Components with props, per-instance state, conditional rendering and lists — expressed in a readable, JSON-like syntax.</p>
+        </div>
+        <div class="card">
+          <div class="icon">⚡</div>
+          <h3>Reactive state</h3>
+          <p><code>state</code> + <code>derived</code> ordered by a real dependency graph. Forward references work; cycles are compile errors.</p>
+        </div>
+        <div class="card">
+          <div class="icon">🛡️</div>
+          <h3>Real compiler</h3>
+          <p>A genuine pipeline — lexer → parser → semantic analysis → static type inference — with readable errors and line/column everywhere.</p>
+        </div>
+        <div class="card">
+          <div class="icon">🛠️</div>
+          <h3>Zero-dependency LSP</h3>
+          <p>Live diagnostics, type hovers and autocompletion from a hand-rolled language server, consumed by the VS Code extension.</p>
+        </div>
+        <div class="card">
+          <div class="icon">🌐</div>
+          <h3>Browser playground</h3>
+          <p>Compile, run and debug .kara entirely client-side. No server, no install, no build step — including this page.</p>
+        </div>
+        <div class="card">
+          <div class="icon">🪟</div>
+          <h3>Desktop via Tauri</h3>
+          <p>A native window shell with hot-reload, and the path to <code>.exe</code> / <code>.app</code> / AppImage.</p>
+        </div>
+      </div>
+    </section>
+
+    <section class="section" style="padding-top: 0">
+      <div class="section-head">
+        <div class="kicker">How it works</div>
+        <h2>From zero to a window in three commands</h2>
+      </div>
+      <div class="steps">
+        <div class="step">
+          <h3>Write .kara</h3>
+          <p>One file, no config: <code>App { title, size, state, Column { ... } }</code>.</p>
+        </div>
+        <div class="step">
+          <h3>kara dev</h3>
+          <p>Compiles, type-checks, starts the runtime and hot-reloads on every save.</p>
+        </div>
+        <div class="step">
+          <h3>Ship desktop</h3>
+          <p>Wrap it in a native Tauri window and build installers for the three OSes.</p>
+        </div>
+      </div>
+      <div style="margin-top: 30px; text-align: center">
+        <pre class="code" style="display: inline-block; text-align: left; padding: 16px 22px" data-code="install"></pre>
+        <script type="text/kara" data-code="install">npm install -g kara-lang
+kara new my-app
+cd my-app && kara dev   # → http://localhost:5179</script>
+      </div>
+    </section>
+
+    <section class="section" style="padding-top: 0">
+      <div class="section-head">
+        <div class="kicker">Honest by design</div>
+        <h2>Where KARA fits (and where it doesn't)</h2>
+        <p>We won't sell you a production desktop framework. We built the thing we wished existed.</p>
+      </div>
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr><th>Need</th><th>Best today</th><th>KARA</th></tr>
+          </thead>
+          <tbody>
+            <tr><td>Production desktop app</td><td>Tauri / Electron</td><td class="no">not yet</td></tr>
+            <tr><td>Reactive web app</td><td>Svelte / React</td><td class="no">use Svelte</td></tr>
+            <tr><td>Desktop prototype in minutes</td><td class="dim">nobody owns it</td><td class="yes">✓ its niche</td></tr>
+            <tr><td>Learning compilers &amp; languages</td><td class="dim">textbooks</td><td class="yes">✓ complete repo</td></tr>
+            <tr><td>Your own UI DSL</td><td class="dim">—</td><td class="yes">✓ extensible pipeline</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <div class="cta-band">
+      <div class="cta">
+        <h2>Write your first app in 30 seconds</h2>
+        <p>No project scaffold, no config file, no build step. Open the playground and start typing.</p>
+        <a class="btn btn-primary" href="playground.html">Open the playground</a>
+      </div>
+    </div>
+
+    <footer class="footer">
+      <div class="footer-inner">
+        <div class="brand">
+          <img src="assets/logo.svg" alt="KARA" style="width: 20px; height: 20px" />
+          <strong>KARA</strong> — © <span data-year>2026</span> Juan Marcos Bravo Medina (JMarc) · Apache-2.0
+        </div>
+        <div class="footer-links">
+          <a href="https://github.com/jmarc9901/KARA" target="_blank" rel="noopener">GitHub</a>
+          <a href="https://www.npmjs.com/package/kara-lang" target="_blank" rel="noopener">npm</a>
+          <a href="getting-started.html">Docs</a>
+        </div>
+      </div>
+    </footer>
+
+    <script src="assets/kara.js"></script>
+    <script src="assets/main.js"></script>
+    <script>
+      // Live hero demo — compiles and runs real KARA in the browser.
+      (function () {
+        var src = document.querySelector('script[type="text/kara"][data-code="hero"]').textContent;
+        var res = window.Kara.compile(src);
+        if (!res.ok) return;
+        var program = res.program;
+        var state = window.Kara.evalInitialState(program);
+
+        function fmt(v) { return v === null || v === undefined ? '' : String(v); }
+        function render() {
+          document.getElementById('hero-val').textContent = fmt(state.count);
+          document.getElementById('hero-parity').textContent = state.even ? 'Even' : 'Odd';
+          document.getElementById('hero-parity').style.color = state.even ? '#28c840' : '#ff6369';
+        }
+        document.getElementById('hero-inc').addEventListener('click', function () {
+          window.Kara.runHandler(program, [{ type: 'Assign', target: 'count', expr: { type: 'Binary', op: '+', left: { type: 'Var', name: 'count' }, right: { type: 'Int', value: 1 } } }], state);
+          state = Object.assign({}, state, window.Kara.computeDerived(program, state));
+          render();
+        });
+        document.getElementById('hero-reset').addEventListener('click', function () {
+          state.count = 0;
+          state = Object.assign({}, state, window.Kara.computeDerived(program, state));
+          render();
+        });
+        render();
+      })();
+    </script>
+  </body>
+</html>

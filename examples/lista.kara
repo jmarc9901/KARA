@@ -1,0 +1,33 @@
+// Reactive list: `for` in the UI + the Push builtin to add tasks.
+App {
+  title: "Reactive list"
+  size: (380, 520)
+
+  state items = ["Study KARA", "Write docs", "Publish example"]
+  state newTask = ""
+  derived total = Length(items)
+
+  Column {
+    padding: 20
+    spacing: 12
+    Text { value: "Tasks (${total})" fontSize: 20 bold: true }
+    for (item in items) {
+      Text { value: "• ${item}" }
+    }
+    if (total == 0) {
+      Text { value: "No tasks 🎉" color: "#28c840" }
+    }
+    TextInput { id: "newInput" bind: newTask placeholder: "New task" }
+    Button {
+      id: "add"
+      text: "Add"
+      onClick: {
+        if (Length(newTask) > 0) {
+          items = Push(items, newTask)
+          newTask = ""
+        }
+      }
+    }
+    Button { id: "clear" text: "Clear all" variant: "ghost" onClick: items = [] }
+  }
+}

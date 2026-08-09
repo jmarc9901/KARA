@@ -1,0 +1,219 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Examples — KARA</title>
+    <meta name="description" content="KARA examples: counter, form, reactive list, custom components and modules." />
+    <link rel="icon" type="image/svg+xml" href="assets/favicon.svg" />
+    <link rel="stylesheet" href="assets/style.css" />
+  </head>
+  <body>
+    <nav class="nav">
+      <div class="nav-inner">
+        <a class="brand" href="index.html"><img src="assets/logo.svg" alt="KARA" /> KARA</a>
+        <div class="nav-links">
+          <a href="getting-started.html">Getting started</a>
+          <a href="language.html">Language</a>
+          <a href="api.html">API</a>
+          <a class="active" href="examples.html">Examples</a>
+          <a href="tutorial.html">Tutorial</a>
+        </div>
+        <div class="nav-cta">
+          <a class="btn btn-primary btn-sm" href="playground.html">Playground</a>
+          <button class="nav-toggle" aria-label="Menu">☰</button>
+        </div>
+      </div>
+    </nav>
+
+    <article class="docs">
+      <h1>Examples</h1>
+      <p class="subtitle">Five small apps that show the language. Every one runs in the playground —
+      click the link to open it.</p>
+
+      <h2>1 · Counter <span style="color: var(--faint); font-weight: 400; font-size: 14px">— state, derived, conditional rendering</span></h2>
+      <p>Open in <a href="playground.html#contador">playground →</a></p>
+      <pre class="code" data-code="contador"></pre>
+      <script type="text/kara" data-code="contador">App {
+  title: "Counter"
+  size: (360, 420)
+
+  state count = 0
+  derived even = count % 2 == 0
+
+  Column {
+    padding: 20
+    spacing: 14
+    Text { value: "Value: ${count}" fontSize: 26 bold: true }
+    if (even) {
+      Text { value: "Even" color: "#28c840" }
+    } else {
+      Text { value: "Odd" color: "#ff6369" }
+    }
+    Button { id: "inc" text: "Increment" onClick: count = count + 1 }
+    Button { id: "dec" text: "Decrement" variant: "secondary" onClick: count = count - 1 }
+    Button { id: "reset" text: "Reset" variant: "ghost" onClick: count = 0 }
+  }
+}</script>
+
+      <h2>2 · Form <span style="color: var(--faint); font-weight: 400; font-size: 14px">— bind, Select, Slider, Checkbox, onChange</span></h2>
+      <p>Open in <a href="playground.html#formulario">playground →</a></p>
+      <pre class="code" data-code="formulario"></pre>
+      <script type="text/kara" data-code="formulario">App {
+  title: "Form"
+  size: (400, 560)
+  theme: "dark"
+
+  state name = "KARA"
+  state ok = false
+  state level = 3
+  state role = "dev"
+  derived greeting = "Hello, " + name + "!"
+  derived levelLabel = "Level: " + level
+  derived roleLabel = "Role: " + role
+
+  Column {
+    padding: 20
+    spacing: 14
+    TextInput { id: "nameInput" bind: name label: "Name" placeholder: "Enter your name" }
+    Select { id: "role" bind: role label: "Role" options: ["dev", "design", "pm"] }
+    Slider { id: "level" bind: level label: "Level" min: 1 max: 10 }
+    Checkbox { id: "agree" bind: ok label: "I agree to the terms" }
+    if (ok) {
+      Text { value: "${greeting} · ${roleLabel} · ${levelLabel}" fontSize: 16 bold: true color: "#6c8bff" }
+    } else {
+      Text { value: "Check the box to say hello" color: "#8b95ab" }
+    }
+    Button { id: "go" text: "Greet" variant: "secondary" onClick: Alert(greeting) }
+  }
+}</script>
+
+      <h2>3 · Reactive list <span style="color: var(--faint); font-weight: 400; font-size: 14px">— for loops in the UI, Push builtin</span></h2>
+      <p>Open in <a href="playground.html#lista">playground →</a></p>
+      <pre class="code" data-code="lista"></pre>
+      <script type="text/kara" data-code="lista">App {
+  title: "Reactive list"
+  size: (380, 520)
+
+  state items = ["Study KARA", "Write docs", "Publish example"]
+  state newTask = ""
+  derived total = Length(items)
+
+  Column {
+    padding: 20
+    spacing: 12
+    Text { value: "Tasks (${total})" fontSize: 20 bold: true }
+    for (item in items) {
+      Text { value: "• ${item}" }
+    }
+    if (total == 0) {
+      Text { value: "No tasks 🎉" color: "#28c840" }
+    }
+    TextInput { id: "newInput" bind: newTask placeholder: "New task" }
+    Button {
+      id: "add"
+      text: "Add"
+      onClick: {
+        if (Length(newTask) > 0) {
+          items = Push(items, newTask)
+          newTask = ""
+        }
+      }
+    }
+    Button { id: "clear" text: "Clear all" variant: "ghost" onClick: items = [] }
+  }
+}</script>
+
+      <h2>4 · Components <span style="color: var(--faint); font-weight: 400; font-size: 14px">— props, per-instance state, local fns</span></h2>
+      <p>Open in <a href="playground.html#componentes">playground →</a></p>
+      <pre class="code" data-code="componentes"></pre>
+      <script type="text/kara" data-code="componentes">App {
+  title: "Components"
+  size: (400, 520)
+
+  component Item(title, initial) {
+    state n = initial
+    derived double = n * 2
+    fn next() { return n + 1 }
+
+    Column {
+      padding: 14
+      spacing: 8
+      Text { value: "🎯 ${title}" bold: true fontSize: 17 }
+      Text { value: "n = ${n} · double = ${double}" }
+      Button { id: "plus" text: "+1" variant: "secondary" onClick: n = next() }
+    }
+  }
+
+  state extra = 10
+
+  Column {
+    padding: 20
+    spacing: 14
+    Text { value: "Each card keeps its own state" color: "#8b95ab" fontSize: 14 }
+    Item { title: "Card A", initial: 1 }
+    Item { title: "Card B", initial: extra }
+  }
+}</script>
+
+      <h2>5 · Modules <span style="color: var(--faint); font-weight: 400; font-size: 14px">— import components and functions</span></h2>
+      <pre class="code" data-code="mod"></pre>
+      <script type="text/kara" data-code="mod">// widgets.kara — reusable module
+component Card(title, body) {
+  Column {
+    padding: 14
+    spacing: 8
+    Text { value: "📌 ${title}" bold: true fontSize: 17 }
+    Text { value: "${body}" }
+  }
+}
+
+fn max(a, b) {
+  if (a > b) { return a }
+  return b
+}
+
+// main.kara
+import "./widgets.kara"
+
+App {
+  title: "Modules"
+  size: (420, 500)
+
+  state clicks = 0
+  state level = 3
+  derived double = max(clicks, level) * 2
+
+  Column {
+    padding: 20
+    spacing: 14
+    Text { value: "Components imported from widgets.kara" fontSize: 15 color: "#8b95ab" }
+    Card { title: "Counter", body: "Clicks: ${clicks}" }
+    Card { title: "Level", body: "Level: ${level}" }
+    Slider { id: "level" bind: level label: "Adjust the level" min: 1 max: 10 }
+    Button { id: "inc" text: "Increment" variant: "secondary" onClick: clicks = clicks + 1 }
+    Text { value: "Max × 2: ${double}" }
+  }
+}</script>
+      <blockquote class="callout">
+        Modules need a file resolver, so they run with <code>kara dev examples/modulos.kara</code>
+        rather than in the browser playground.
+      </blockquote>
+    </article>
+
+    <footer class="footer">
+      <div class="footer-inner">
+        <div class="brand">
+          <img src="assets/logo.svg" alt="KARA" style="width: 20px; height: 20px" />
+          <strong>KARA</strong> — © <span data-year>2026</span> Juan Marcos Bravo Medina (JMarc) · Apache-2.0
+        </div>
+        <div class="footer-links">
+          <a href="https://github.com/jmarc9901/KARA" target="_blank" rel="noopener">GitHub</a>
+          <a href="https://github.com/jmarc9901/KARA/tree/main/docs/es" target="_blank" rel="noopener">Docs (ES)</a>
+        </div>
+      </div>
+    </footer>
+
+    <script src="assets/main.js"></script>
+  </body>
+</html>
