@@ -37,6 +37,9 @@
     "web:build": "node website/build.mjs",
     "web:preview": "node scripts/serve.js"
   },
+  "dependencies": {
+    "ws": "^8.16.0"
+  },
   "engines": {
     "node": ">=20.11"
   },

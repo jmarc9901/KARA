@@ -11,10 +11,12 @@
  */
 
 import { spawnSync } from 'node:child_process';
+import { createRequire } from 'node:module';
 import fs from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 
+const require = createRequire(import.meta.url);
 const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 
 /**
@@ -232,11 +234,19 @@ function cmdDoctor() {
   else log(`  \u26a0 no build yet — run \`kara build\``);
 
   log('dependencies:');
-  if (fs.existsSync(path.join(ROOT, 'runtime', 'node_modules', 'ws')))
-    ok('runtime deps installed (ws)');
-  else bad('runtime deps missing — run: npm --prefix runtime install');
+  const wsOk = ['', 'runtime'].some((sub) => {
+    try {
+      return Boolean(require.resolve('ws', { paths: [path.join(ROOT, sub)] }));
+    } catch {
+      return false;
+    }
+  });
+  if (wsOk) ok('runtime deps installed (ws)');
+  else bad('runtime deps missing — run: npm install (or: npm --prefix runtime install)');
   if (fs.existsSync(path.join(ROOT, 'ui', 'node_modules')))
     ok('ui deps installed (svelte/vite)');
+  else if (fs.existsSync(path.join(ROOT, 'ui', 'dist', 'index.html')))
+    ok('ui deps not installed, but ui/dist is pre-built (npm tarball)');
   else bad('ui deps missing — run: npm --prefix ui install');
 
   log('ui:');
