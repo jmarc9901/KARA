@@ -63,7 +63,8 @@ fn main() {
             // Espera al servidor en un hilo y navega la ventana desde el hilo principal.
             thread::spawn(move || {
                 wait_for_server(port);
-                let _ = handle.run_on_main_thread(move |app| {
+                let app = handle.clone();
+                let _ = handle.run_on_main_thread(move || {
                     if let Some(window) = app.get_webview_window("main") {
                         let url = format!("http://127.0.0.1:{port}");
                         if let Ok(u) = url.parse() {
@@ -115,8 +116,8 @@ fn read_port(root: &Path) -> u16 {
 /// Entry del proyecto (`kara.config.json` → `entry`, default `src/main.kara`).
 fn read_entry(root: &Path) -> PathBuf {
     let entry = read_config(root)
-        .and_then(|v| v.get("entry").and_then(|e| e.as_str()))
-        .unwrap_or("src/main.kara");
+        .and_then(|v| v.get("entry").and_then(|e| e.as_str().map(String::from)))
+        .unwrap_or_else(|| "src/main.kara".to_string());
     root.join(entry)
 }
 
