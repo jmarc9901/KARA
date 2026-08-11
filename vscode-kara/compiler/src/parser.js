@@ -107,7 +107,11 @@ const CONTAINER_NAMES = new Set(
   Object.entries(COMPONENT_SCHEMA).filter(([, s]) => s.kind === 'container').map(([n]) => n)
 );
 
-export const BUILTIN_NAMES = ['Print', 'Alert', 'Random', 'Now', 'Length', 'Push', 'Log', 'File.Read', 'File.Write'];
+export const BUILTIN_NAMES = [
+  'Print', 'Alert', 'Random', 'Now', 'Length', 'Push', 'Log',
+  'Map', 'Filter', 'Reduce',
+  'File.Read', 'File.Write', 'SetTimeout', 'SetInterval',
+];
 const BUILTINS = new Set(BUILTIN_NAMES);
 
 function err(message, tok) {
@@ -292,7 +296,7 @@ export class Parser {
         this.eatPunct(':');
         const v = this.parseValue();
         if (v?.kind === 'str') {
-          if (key === 'title') program.title = this.interpPartsToPlain(v.value);
+          if (key === 'title') program.title = this.interpPartsToPlain(v.value, v);
           else {
             const theme = v.value;
             if (theme === 'light' || theme === 'dark') program.theme = theme;
@@ -804,7 +808,7 @@ export class Parser {
         if (v.kind === 'str') {
           // Only display strings (value/text) keep interpolation parts; the rest
           // (id, src, label, placeholder, color) are plain strings used verbatim.
-          if (key === 'value' || key === 'text') node.props[key] = this.stringToParts(v.value);
+          if (key === 'value' || key === 'text') node.props[key] = this.stringToParts(v.value, v);
           else node.props[key] = v.value;
         } else {
           this.error(`"${key}" must be a string`, tok);
@@ -1209,14 +1213,16 @@ export class Parser {
     return expr;
   }
 
-  interpPartsToPlain(raw) {
-    const parts = this.interpParts(raw, this.peek());
+  interpPartsToPlain(raw, strTok) {
+    // strTok is the string token the parts came from, so unterminated
+    // interpolation errors point at the string itself (not the token after it).
+    const parts = this.interpParts(raw, strTok ?? this.peek());
     return parts.map((p) => p.text ?? '').join('');
   }
 
-  stringToParts(raw) {
+  stringToParts(raw, strTok) {
     // Only split on ${ if the string contains a real interpolation.
-    if (raw.includes('${')) return this.interpParts(raw, this.peek());
+    if (raw.includes('${')) return this.interpParts(raw, strTok ?? this.peek());
     return [{ text: raw }];
   }
 }

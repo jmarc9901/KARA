@@ -257,10 +257,16 @@ Conjunto de builtins implementados:
 - `Random(a, b)` — entero aleatorio en `[a, b]`
 - `Length(x)` — longitud de arrays y strings
 - `Push(list, ...)` — array nuevo con los elementos añadidos (inmutable)
+- `Map(list, "fn")` / `Filter(list, "fn")` — llaman a una función KARA por
+  **nombre** sobre cada elemento (las funciones aún no son valores de primera clase)
+- `Reduce(list, "fn", init)` — acumula con `fn(acc, item)`
 - `File.Read(path)` → `Str` — **solo runtime de escritorio** (Node)
 - `File.Write(path, data)` → `Null` — **solo runtime de escritorio** (Node)
+- `SetTimeout(ms, "fn")` / `SetInterval(ms, "fn")` — programan una función
+  KARA en el bucle de eventos del runtime — **solo runtime de escritorio** (Node)
 
-> `File.Read`/`File.Write` no están disponibles en el playground (navegador):
+> `File.Read`/`File.Write`, `SetTimeout` y `SetInterval` no están disponibles
+> en el playground (navegador):
 > el intérprete los reporta como no disponibles. `Http.Get(url)` sigue en el
 > roadmap (requiere soporte async en el intérprete).
 

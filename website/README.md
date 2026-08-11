@@ -50,7 +50,7 @@ The folder is fully static — no build step for the pages themselves:
 ## Notes
 
 - The playground supports deep links to presets: `playground.html#contador`,
-  `#formulario`, `#lista`, `#componentes`.
+  `#formulario`, `#lista`, `#componentes`, `#tareas`.
 - All code blocks in the pages are written as raw
   `<script type="text/kara">` sources and highlighted at load time by
   `assets/main.js` — edit the raw source, not the highlighted output.

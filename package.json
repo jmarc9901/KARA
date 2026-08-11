@@ -1,6 +1,6 @@
 {
   "name": "kara-lang",
-  "version": "0.3.0",
+  "version": "0.4.0",
   "description": "KARA — a language and runtime for prototyping reactive desktop UIs (web + Tauri)",
   "type": "module",
   "bin": {
@@ -31,6 +31,8 @@
     "postinstall": "node scripts/prepare.js",
     "test:compiler": "node --test compiler/test/parser.test.js compiler/test/sema.test.js compiler/test/expand.test.js compiler/test/modules.test.js",
     "test:runtime": "node --test runtime/test/interpreter.test.js runtime/test/builtins.test.js",
+    "test:e2e": "node --test runtime/test/e2e.test.js",
+    "test:parity": "node --test compiler/test/parity.test.js",
     "icons": "node scripts/gen-icon.js && tauri icon build/icon.png",
     "desktop:dev": "tauri dev",
     "desktop:build": "tauri build",

@@ -2,7 +2,7 @@
   "name": "kara-lang",
   "displayName": "KARA",
   "description": "KARA language and runtime: syntax highlighting, live diagnostics (LSP), type hovers and autocompletion",
-  "version": "0.3.0",
+  "version": "0.4.0",
   "publisher": "jmarc9901",
   "license": "Apache-2.0",
   "author": {

@@ -7,11 +7,16 @@
 //! {
 //!   "title": "...", "size": [w, h], "theme": "light" | "dark",
 //!   "state": { name: { "expr": <expr>, "loc": { "line", "col" } } },
-//!   "fns": [{ "name", "params": [{ "name" }], "body": [<stmt>...] }],
+//!   "derived": { ... }, "fns": [...],
+//!   "components": [...], "imports": [...],
 //!   "ui": { "type": "App", "children": [<node>...] },
-//!   "stateOrder": [name...]
+//!   "stateOrder": [name...], "derivedOrder": [name...]
 //! }
 //! ```
+//!
+//! Soportado: widgets base + Select/Slider, `onClick`/`onChange`, `bind`,
+//! `strArray` (options), componentes personalizados, `import`/módulos
+//! (resolución relativa, dedupe y ciclos seguros) e interpolación de strings.
 //!
 //! Uso: `kara-parser [input.kara] [outdir]` → escribe `outdir/ast.json`
 //! o reporta los errores de compilación por stderr.
@@ -20,6 +25,8 @@
 #![allow(non_snake_case)]
 
 use serde_json::{json, Map, Value};
+use std::cell::RefCell;
+use std::rc::Rc;
 use std::{env, fs, path::PathBuf};
 
 // ---------------------------------------------------------------------------
@@ -79,8 +86,8 @@ struct Token {
 }
 
 const KEYWORDS: &[&str] = &[
-    "App", "fn", "let", "state", "derived", "if", "else", "while", "for", "in", "return", "true",
-    "false",
+    "App", "component", "fn", "let", "state", "derived", "if", "else", "while", "for", "in",
+    "return", "import", "true", "false",
 ];
 // Ordenado de mayor a menor longitud: los multi-char van primero.
 const PUNCT: &[&str] = &[
@@ -111,6 +118,9 @@ fn lex(source: &str) -> (Vec<Token>, Vec<Err>) {
     let mut tokens: Vec<Token> = Vec::new();
     let mut errors: Vec<Err> = Vec::new();
     let mut i = 0usize;
+    // `units` cuenta código UTF-16 (igual que el índice de strings de JS), de
+    // modo que `loc.index` coincide con el del compiler JS incluso con emojis.
+    let mut units = 0usize;
     let mut line = 1usize;
     let mut col = 1usize;
 
@@ -118,6 +128,7 @@ fn lex(source: &str) -> (Vec<Token>, Vec<Err>) {
         () => {{
             let c = chars[i];
             i += 1;
+            units += c.len_utf16();
             if c == '\n' {
                 line += 1;
                 col = 1;
@@ -146,7 +157,7 @@ fn lex(source: &str) -> (Vec<Token>, Vec<Err>) {
 
         // Block comments
         if c == '/' && chars.get(i + 1) == Some(&'*') {
-            let (sl, sc, si) = (line, col, i);
+            let (sl, sc, si) = (line, col, units);
             step!();
             step!();
             let mut closed = false;
@@ -166,6 +177,7 @@ fn lex(source: &str) -> (Vec<Token>, Vec<Err>) {
         }
 
         let (tl, tc, ti) = (line, col, i);
+        let tu = units;
 
         // Strings — raw content; interpolation is split by the parser.
         if c == '"' {
@@ -197,9 +209,9 @@ fn lex(source: &str) -> (Vec<Token>, Vec<Err>) {
                 step!();
             }
             if !closed {
-                errors.push(Err::lex("unterminated string literal", tl, tc, ti));
+                errors.push(Err::lex("unterminated string literal", tl, tc, tu));
             }
-            tokens.push(Token { kind: TokenKind::Str(raw), index: ti, line: tl, col: tc });
+            tokens.push(Token { kind: TokenKind::Str(raw), index: tu, line: tl, col: tc });
             continue;
         }
 
@@ -224,7 +236,7 @@ fn lex(source: &str) -> (Vec<Token>, Vec<Err>) {
             } else {
                 TokenKind::Int(text.parse().unwrap_or(0))
             };
-            tokens.push(Token { kind, index: ti, line: tl, col: tc });
+            tokens.push(Token { kind, index: tu, line: tl, col: tc });
             continue;
         }
 
@@ -239,7 +251,7 @@ fn lex(source: &str) -> (Vec<Token>, Vec<Err>) {
             } else {
                 TokenKind::Ident(name)
             };
-            tokens.push(Token { kind, index: ti, line: tl, col: tc });
+            tokens.push(Token { kind, index: tu, line: tl, col: tc });
             continue;
         }
 
@@ -259,15 +271,15 @@ fn lex(source: &str) -> (Vec<Token>, Vec<Err>) {
             for _ in 0..p.chars().count() {
                 step!();
             }
-            tokens.push(Token { kind: TokenKind::Punct(p.to_string()), index: ti, line: tl, col: tc });
+            tokens.push(Token { kind: TokenKind::Punct(p.to_string()), index: tu, line: tl, col: tc });
             continue;
         }
 
-        errors.push(Err::lex(format!("unexpected character \"{}\"", c), tl, tc, ti));
+        errors.push(Err::lex(format!("unexpected character \"{}\"", c), tl, tc, tu));
         step!();
     }
 
-    tokens.push(Token { kind: TokenKind::Eof, index: i, line, col });
+    tokens.push(Token { kind: TokenKind::Eof, index: units, line, col });
     (tokens, errors)
 }
 
@@ -275,7 +287,7 @@ fn lex(source: &str) -> (Vec<Token>, Vec<Err>) {
 // Component schema
 // ---------------------------------------------------------------------------
 struct PropDef {
-    t: &'static str,        // "int" | "num" | "float" | "str" | "bool" | "strEnum"
+    t: &'static str,        // "int" | "num" | "float" | "str" | "bool" | "strEnum" | "strArray"
     allowed: &'static [&'static str],
     required: bool,
 }
@@ -303,6 +315,7 @@ const BUTTON_PROPS: &[(&str, PropDef)] = &[
 
 const INPUT_PROPS: &[(&str, PropDef)] = &[
     ("id", PropDef { t: "str", allowed: &[], required: true }),
+    ("bind", PropDef { t: "str", allowed: &[], required: false }),
     ("placeholder", PropDef { t: "str", allowed: &[], required: false }),
     ("label", PropDef { t: "str", allowed: &[], required: false }),
     ("type", PropDef { t: "strEnum", allowed: &["text", "password"], required: false }),
@@ -310,7 +323,24 @@ const INPUT_PROPS: &[(&str, PropDef)] = &[
 
 const CHECKBOX_PROPS: &[(&str, PropDef)] = &[
     ("id", PropDef { t: "str", allowed: &[], required: true }),
+    ("bind", PropDef { t: "str", allowed: &[], required: false }),
     ("label", PropDef { t: "str", allowed: &[], required: false }),
+];
+
+const SELECT_PROPS: &[(&str, PropDef)] = &[
+    ("id", PropDef { t: "str", allowed: &[], required: true }),
+    ("bind", PropDef { t: "str", allowed: &[], required: false }),
+    ("label", PropDef { t: "str", allowed: &[], required: false }),
+    ("options", PropDef { t: "strArray", allowed: &[], required: true }),
+];
+
+const SLIDER_PROPS: &[(&str, PropDef)] = &[
+    ("id", PropDef { t: "str", allowed: &[], required: true }),
+    ("bind", PropDef { t: "str", allowed: &[], required: false }),
+    ("label", PropDef { t: "str", allowed: &[], required: false }),
+    ("min", PropDef { t: "num", allowed: &[], required: false }),
+    ("max", PropDef { t: "num", allowed: &[], required: false }),
+    ("step", PropDef { t: "num", allowed: &[], required: false }),
 ];
 
 const IMAGE_PROPS: &[(&str, PropDef)] = &[
@@ -319,7 +349,9 @@ const IMAGE_PROPS: &[(&str, PropDef)] = &[
     ("height", PropDef { t: "num", allowed: &[], required: false }),
 ];
 
-const COMPONENT_NAMES: &[&str] = &["Column", "Row", "Text", "Button", "TextInput", "Checkbox", "Image"];
+const COMPONENT_NAMES: &[&str] = &[
+    "Column", "Row", "Text", "Button", "TextInput", "Checkbox", "Select", "Slider", "Image",
+];
 const STATEMENT_KEYWORDS: &[&str] = &["let", "state", "derived", "fn", "if", "while", "for", "return"];
 
 /// (es contenedor, definición de props)
@@ -330,6 +362,8 @@ fn schema_for(name: &str) -> Option<(bool, &'static [(&'static str, PropDef)])> 
         "Button" => Some((false, BUTTON_PROPS)),
         "TextInput" => Some((false, INPUT_PROPS)),
         "Checkbox" => Some((false, CHECKBOX_PROPS)),
+        "Select" => Some((false, SELECT_PROPS)),
+        "Slider" => Some((false, SLIDER_PROPS)),
         "Image" => Some((false, IMAGE_PROPS)),
         _ => None,
     }
@@ -342,11 +376,30 @@ struct Parser {
     tokens: Vec<Token>,
     pos: usize,
     errors: Vec<Err>,
+    /// Directorio del archivo actual (para resolver imports relativos).
+    dir: Option<PathBuf>,
+    /// Conjunto compartido de ids ya importados en todo el árbol (dedupe + ciclos).
+    imported_ids: Rc<RefCell<Vec<String>>>,
 }
 
 impl Parser {
     fn new(tokens: Vec<Token>, errors: Vec<Err>) -> Self {
-        Parser { tokens, pos: 0, errors }
+        Parser {
+            tokens,
+            pos: 0,
+            errors,
+            dir: None,
+            imported_ids: Rc::new(RefCell::new(Vec::new())),
+        }
+    }
+
+    fn with_dir(
+        tokens: Vec<Token>,
+        errors: Vec<Err>,
+        dir: Option<PathBuf>,
+        imported_ids: Rc<RefCell<Vec<String>>>,
+    ) -> Self {
+        Parser { tokens, pos: 0, errors, dir, imported_ids }
     }
 
     fn peek(&self, off: usize) -> Token {
@@ -429,6 +482,40 @@ impl Parser {
     // Program
     // =======================================================================
     fn parse_program(&mut self) -> Value {
+        // Leading `import "..."` statements merge component/fn definitions from
+        // other .kara files before the App block is parsed.
+        let mut imports: Vec<Value> = Vec::new();
+        let mut components: Vec<Value> = Vec::new();
+        let mut fns: Vec<Value> = Vec::new();
+        while self.at_keyword("import") {
+            if let Some((spec, id, mod_components, mod_fns)) = self.parse_import() {
+                imports.push(json!({ "spec": spec, "id": id }));
+                for c in mod_components {
+                    let name = c.get("name").and_then(|v| v.as_str()).unwrap_or("").to_string();
+                    if components.iter().any(|x| x.get("name").and_then(|v| v.as_str()) == Some(name.as_str()))
+                    {
+                        self.error(
+                            format!("duplicate component \"{}\" (already defined or imported)", name),
+                            &self.peek(0),
+                        );
+                        continue;
+                    }
+                    components.push(c);
+                }
+                for f in mod_fns {
+                    let name = f.get("name").and_then(|v| v.as_str()).unwrap_or("").to_string();
+                    if fns.iter().any(|x| x.get("name").and_then(|v| v.as_str()) == Some(name.as_str())) {
+                        self.error(
+                            format!("duplicate function \"{}\" (already defined or imported)", name),
+                            &self.peek(0),
+                        );
+                        continue;
+                    }
+                    fns.push(f);
+                }
+            }
+        }
+
         if self.at_keyword("App") {
             self.next();
         } else {
@@ -442,7 +529,6 @@ impl Parser {
         let mut theme: Value = json!("light");
         let mut state: Map<String, Value> = Map::new();
         let mut derived: Map<String, Value> = Map::new();
-        let mut fns: Vec<Value> = Vec::new();
         let mut children: Vec<Value> = Vec::new();
         let mut seen: Vec<String> = Vec::new();
 
@@ -454,6 +540,7 @@ impl Parser {
             }
             let tok = self.peek(0);
 
+            // if / for blocks in the UI tree
             if let TokenKind::Keyword(k) = &tok.kind {
                 if k == "if" || k == "for" {
                     if let Some(node) = self.parse_ui_node() {
@@ -463,9 +550,20 @@ impl Parser {
                 }
             }
 
+            // Built-in components
             if let TokenKind::Ident(name) = &tok.kind {
                 if COMPONENT_NAMES.contains(&name.as_str()) {
                     if let Some(node) = self.parse_component() {
+                        children.push(node);
+                    }
+                    continue;
+                }
+            }
+
+            // Custom component instance: Name followed by "{"
+            if let TokenKind::Ident(name) = &tok.kind {
+                if !COMPONENT_NAMES.contains(&name.as_str()) && self.peek(1).kind.punct() == Some("{") {
+                    if let Some(node) = self.parse_custom_component() {
                         children.push(node);
                     }
                     continue;
@@ -546,45 +644,15 @@ impl Parser {
                     }
                 }
                 "fn" => {
-                    let name_tok = self.next();
-                    if let TokenKind::Ident(fname) = &name_tok.kind {
-                        if fns.iter().any(|f| f.get("name").and_then(|v| v.as_str()) == Some(fname.as_str()))
-                        {
-                            self.error(format!("duplicate function \"{}\"", fname), &name_tok);
-                        }
-                        self.eat_punct("(");
-                        let mut params: Vec<Value> = Vec::new();
-                        while !self.at_punct(")") {
-                            if self.at_end() {
-                                self.error("unexpected end of file in function params".to_string(), &self.peek(0));
-                                break;
-                            }
-                            let p = self.next();
-                            if let TokenKind::Ident(pname) = &p.kind {
-                                let mut param = json!({ "name": pname });
-                                if self.at_punct(":") {
-                                    self.next();
-                                    let t = self.next();
-                                    if let TokenKind::Ident(ty) = &t.kind {
-                                        param["type"] = json!(ty);
-                                    } else {
-                                        self.error("expected a type name after \":\"".to_string(), &t);
-                                    }
-                                }
-                                if !self.at_punct(")") {
-                                    self.eat_punct(",");
-                                }
-                                params.push(param);
-                            } else {
-                                self.error("expected a parameter name".to_string(), &p);
-                            }
-                        }
-                        self.eat_punct(")");
-                        let body = self.parse_block();
-                        fns.push(json!({ "name": fname, "params": params, "body": body }));
-                    } else {
-                        self.error("expected a function name".to_string(), &name_tok);
-                        self.recover();
+                    // The 'fn' keyword was consumed as `key`; parse_fn_def reads the name.
+                    if let Some(f) = self.parse_fn_def(&fns, None) {
+                        fns.push(f);
+                    }
+                }
+                "component" => {
+                    // The keyword was consumed as `key`; parse_component_def reads the name.
+                    if let Some(c) = self.parse_component_def(&components) {
+                        components.push(c);
                     }
                 }
                 _ if key.starts_with(|c: char| c.is_ascii_uppercase()) => {
@@ -618,10 +686,396 @@ impl Parser {
             "state": Value::Object(state),
             "derived": Value::Object(derived),
             "fns": fns,
+            "components": components,
+            "imports": imports,
             "ui": { "type": "App", "children": children },
             "stateOrder": state_order,
             "derivedOrder": derived_order,
         })
+    }
+
+    // =======================================================================
+    // Imports / modules
+    // =======================================================================
+    /// `import "./path.kara"` → (spec, id, components, fns). Dedupe + ciclos vía
+    /// el conjunto compartido `imported_ids` (igual que el compiler JS).
+    fn parse_import(&mut self) -> Option<(String, String, Vec<Value>, Vec<Value>)> {
+        self.next(); // 'import'
+        let path_tok = self.peek(0);
+        let spec = match &path_tok.kind {
+            TokenKind::Str(s) => s.clone(),
+            _ => {
+                self.error("import expects a string path: import \"./file.kara\"".to_string(), &path_tok);
+                self.recover();
+                return None;
+            }
+        };
+        self.next();
+        if self.at_punct(";") {
+            self.next();
+        }
+
+        let dir = self.dir.clone()?;
+        let path = dir.join(&spec);
+        let source = match fs::read_to_string(&path) {
+            Ok(s) => s,
+            Err(_) => {
+                self.error(format!("cannot resolve import \"{}\"", spec), &path_tok);
+                return None;
+            }
+        };
+        let id = fs::canonicalize(&path)
+            .map(|p| p.display().to_string())
+            .unwrap_or_else(|_| path.display().to_string());
+
+        // Dedupe + cycle safety: el conjunto compartido abarca todo el árbol.
+        if self.imported_ids.borrow().contains(&id) {
+            return Some((spec, id, Vec::new(), Vec::new()));
+        }
+        self.imported_ids.borrow_mut().push(id.clone());
+
+        let sub_dir = path.parent().map(|p| p.to_path_buf());
+        let (tokens, lex_errors) = lex(&source);
+        let mut sub = Parser::with_dir(tokens, lex_errors, sub_dir, self.imported_ids.clone());
+        let (components, fns) = sub.parse_module();
+        // Etiquetar los errores del módulo con su archivo (sus line/col son
+        // relativos al módulo, no al entry).
+        if !sub.errors.is_empty() {
+            for e in sub.errors {
+                self.errors.push(Err::parse(format!("{}: {}", id, e.message), e.line, e.col, e.index));
+            }
+        }
+        Some((spec, id, components, fns))
+    }
+
+    /// Archivo de módulo — destino de un `import`. Solo `component`/`fn` (y
+    /// otros `import`); un App/state a nivel top-level es un error.
+    fn parse_module(&mut self) -> (Vec<Value>, Vec<Value>) {
+        let mut components: Vec<Value> = Vec::new();
+        let mut fns: Vec<Value> = Vec::new();
+        while !self.at_end() {
+            if self.at_keyword("import") {
+                if let Some((_, _, mod_components, mod_fns)) = self.parse_import() {
+                    for c in mod_components {
+                        let name = c.get("name").and_then(|v| v.as_str()).unwrap_or("").to_string();
+                        if components.iter().any(|x| x.get("name").and_then(|v| v.as_str()) == Some(name.as_str()))
+                        {
+                            self.error(format!("duplicate component \"{}\" in module", name), &self.peek(0));
+                            continue;
+                        }
+                        components.push(c);
+                    }
+                    for f in mod_fns {
+                        let name = f.get("name").and_then(|v| v.as_str()).unwrap_or("").to_string();
+                        if fns.iter().any(|x| x.get("name").and_then(|v| v.as_str()) == Some(name.as_str())) {
+                            self.error(format!("duplicate function \"{}\" in module", name), &self.peek(0));
+                            continue;
+                        }
+                        fns.push(f);
+                    }
+                }
+                continue;
+            }
+            let tok = self.peek(0);
+            if tok.kind.keyword() == Some("component") {
+                self.next();
+                if let Some(c) = self.parse_component_def(&components) {
+                    components.push(c);
+                }
+            } else if tok.kind.keyword() == Some("fn") {
+                // En módulos el def de fn lleva `loc` (del keyword 'fn'), como en el JS.
+                let kw_loc = tok_loc(&tok);
+                self.next();
+                if let Some(f) = self.parse_fn_def(&fns, Some(kw_loc)) {
+                    fns.push(f);
+                }
+            } else if tok.kind.keyword() == Some("App") {
+                self.error(
+                    "a module file cannot contain an App block (only component/fn definitions)".to_string(),
+                    &tok,
+                );
+                self.recover_module();
+            } else if tok.kind.keyword().is_some() {
+                let kw = tok.kind.keyword().unwrap().to_string();
+                self.error(
+                    format!("\"{}\" is not allowed in a module file (only component/fn definitions)", kw),
+                    &tok,
+                );
+                self.recover_module();
+            } else if let TokenKind::Ident(_) = &tok.kind {
+                self.error(format!("unexpected \"{}\" in module file", tok_display(&tok)), &tok);
+                self.recover_module();
+            } else {
+                self.error("unexpected token in module file".to_string(), &tok);
+                self.recover_module();
+            }
+        }
+        (components, fns)
+    }
+
+    /// Recuperación de módulo: salta hasta la siguiente definición o EOF.
+    fn recover_module(&mut self) {
+        while !self.at_end() {
+            let t = self.peek(0);
+            if let TokenKind::Keyword(k) = &t.kind {
+                if k == "component" || k == "fn" || k == "import" {
+                    return;
+                }
+            }
+            self.next();
+        }
+    }
+
+    // =======================================================================
+    // Custom components
+    // =======================================================================
+    /// `component Name(a, b: Type) { ... }` → definición JSON. El token actual
+    /// debe ser el nombre (la palabra clave ya se consumió).
+    fn parse_component_def(&mut self, existing: &[Value]) -> Option<Value> {
+        let name_tok = self.next();
+        let name = match &name_tok.kind {
+            TokenKind::Ident(n) => n.clone(),
+            _ => {
+                self.error("expected a component name after \"component\"".to_string(), &name_tok);
+                self.recover();
+                return None;
+            }
+        };
+        if COMPONENT_NAMES.contains(&name.as_str()) {
+            self.error(format!("cannot redefine built-in component \"{}\"", name), &name_tok);
+            self.recover();
+            return None;
+        }
+        if !name.chars().next().map_or(false, |c| c.is_ascii_uppercase()) {
+            self.error("component names must start with an uppercase letter".to_string(), &name_tok);
+        }
+        if existing.iter().any(|c| c.get("name").and_then(|v| v.as_str()) == Some(name.as_str())) {
+            self.error(format!("duplicate component \"{}\"", name), &name_tok);
+            self.recover();
+            return None;
+        }
+        let params = self.parse_params();
+        let (states, derived, fns, children) = self.parse_component_body();
+        Some(json!({
+            "name": name,
+            "params": params,
+            "states": Value::Object(states),
+            "derived": Value::Object(derived),
+            "fns": fns,
+            "children": children,
+            "loc": tok_loc(&name_tok),
+        }))
+    }
+
+    /// `(a, b: Type, ...)` — compartido por fn y component definitions.
+    fn parse_params(&mut self) -> Vec<Value> {
+        let mut params: Vec<Value> = Vec::new();
+        self.eat_punct("(");
+        while !self.at_punct(")") {
+            if self.at_end() {
+                self.error("unexpected end of file in parameter list".to_string(), &self.peek(0));
+                break;
+            }
+            let p = self.next();
+            if let TokenKind::Ident(pname) = &p.kind {
+                let mut param = json!({ "name": pname });
+                // Anotación de tipo opcional (se parsea, reservada para el futuro)
+                if self.at_punct(":") {
+                    self.next();
+                    let t = self.next();
+                    if let TokenKind::Ident(ty) = &t.kind {
+                        param["type"] = json!(ty);
+                    } else {
+                        self.error("expected a type name after \":\"".to_string(), &t);
+                    }
+                }
+                if !self.at_punct(")") {
+                    self.eat_punct(",");
+                }
+                params.push(param);
+            } else {
+                self.error("expected a parameter name".to_string(), &p);
+            }
+        }
+        self.eat_punct(")");
+        params
+    }
+
+    /// Cuerpo de un componente: state/derived/fn + nodos UI.
+    fn parse_component_body(&mut self) -> (Map<String, Value>, Map<String, Value>, Vec<Value>, Vec<Value>) {
+        let mut states: Map<String, Value> = Map::new();
+        let mut derived: Map<String, Value> = Map::new();
+        let mut fns: Vec<Value> = Vec::new();
+        let mut children: Vec<Value> = Vec::new();
+
+        self.eat_punct("{");
+        while !self.at_punct("}") {
+            if self.at_end() {
+                self.error("missing closing \"}\" for component body".to_string(), &self.peek(0));
+                break;
+            }
+            let tok = self.peek(0);
+
+            // if / for
+            if let TokenKind::Keyword(k) = &tok.kind {
+                if k == "if" || k == "for" {
+                    if let Some(node) = self.parse_ui_node() {
+                        children.push(node);
+                    }
+                    continue;
+                }
+            }
+            // Built-in components
+            if let TokenKind::Ident(name) = &tok.kind {
+                if COMPONENT_NAMES.contains(&name.as_str()) {
+                    if let Some(node) = self.parse_component() {
+                        children.push(node);
+                    }
+                    continue;
+                }
+            }
+            // Custom component instance
+            if let TokenKind::Ident(name) = &tok.kind {
+                if !COMPONENT_NAMES.contains(&name.as_str()) && self.peek(1).kind.punct() == Some("{") {
+                    if let Some(node) = self.parse_custom_component() {
+                        children.push(node);
+                    }
+                    continue;
+                }
+            }
+
+            let key = match &tok.kind {
+                TokenKind::Ident(s) | TokenKind::Keyword(s) => s.clone(),
+                _ => {
+                    self.error(format!("unexpected token \"{}\" in component body", tok_display(&tok)), &tok);
+                    self.recover();
+                    continue;
+                }
+            };
+            self.next();
+
+            match key.as_str() {
+                "state" | "derived" => {
+                    let is_derived = key == "derived";
+                    let name_tok = self.next();
+                    if let TokenKind::Ident(name) = &name_tok.kind {
+                        let target = if is_derived { &mut derived } else { &mut states };
+                        if target.contains_key(name) {
+                            let label = if is_derived { "derived" } else { "state" };
+                            self.error(format!("duplicate {} variable \"{}\"", label, name), &name_tok);
+                        }
+                        self.eat_punct("=");
+                        if let Some(expr) = self.parse_expr() {
+                            target.insert(
+                                name.clone(),
+                                json!({
+                                    "expr": expr,
+                                    "loc": { "line": name_tok.line, "col": name_tok.col },
+                                }),
+                            );
+                        } else {
+                            self.recover();
+                        }
+                    } else {
+                        let label = if is_derived { "derived" } else { "state" };
+                        self.error(format!("expected a {} variable name", label), &name_tok);
+                        self.recover();
+                    }
+                }
+                "fn" => {
+                    // 'fn' consumida como `key`; parse_fn_def lee el nombre.
+                    if let Some(f) = self.parse_fn_def(&fns, None) {
+                        fns.push(f);
+                    }
+                }
+                _ if key.starts_with(|c: char| c.is_ascii_uppercase()) => {
+                    self.error(format!("unknown component \"{}\"", key), &tok);
+                    self.recover();
+                }
+                _ => {
+                    self.error(format!("unexpected \"{}\" in component body", key), &tok);
+                    self.recover();
+                }
+            }
+        }
+        self.eat_punct("}");
+        (states, derived, fns, children)
+    }
+
+    /// `fn name(params) { ... }` → definición. El token actual debe ser el
+    /// nombre (la palabra clave `fn` ya se consumió, igual que en el JS).
+    /// `kw_loc` solo se incluye cuando el JS lo incluye (defs en módulos).
+    fn parse_fn_def(&mut self, existing: &[Value], kw_loc: Option<Value>) -> Option<Value> {
+        let name_tok = self.next();
+        if let TokenKind::Ident(fname) = &name_tok.kind {
+            if existing.iter().any(|f| f.get("name").and_then(|v| v.as_str()) == Some(fname.as_str())) {
+                self.error(format!("duplicate function \"{}\"", fname), &name_tok);
+            }
+            let params = self.parse_params();
+            let body = self.parse_block();
+            let mut def = json!({ "name": fname, "params": params, "body": body });
+            if let Some(loc) = kw_loc {
+                def["loc"] = loc;
+            }
+            Some(def)
+        } else {
+            self.error("expected a function name".to_string(), &name_tok);
+            self.recover();
+            None
+        }
+    }
+
+    /// Instancia de componente personalizado: `Name { prop: <expr>, ... }`.
+    fn parse_custom_component(&mut self) -> Option<Value> {
+        let name_tok = self.next();
+        let name = match &name_tok.kind {
+            TokenKind::Ident(n) => n.clone(),
+            _ => return None,
+        };
+        let mut props: Map<String, Value> = Map::new();
+        let mut seen: Vec<String> = Vec::new();
+
+        self.eat_punct("{");
+        while !self.at_punct("}") {
+            if self.at_end() {
+                self.error(format!("missing closing \"}}\" for {}", name), &name_tok);
+                break;
+            }
+            let tok = self.peek(0);
+            let key = match &tok.kind {
+                TokenKind::Ident(s) => s.clone(),
+                _ => {
+                    self.error(format!("unexpected token \"{}\" inside {}", tok_display(&tok), name), &tok);
+                    self.recover();
+                    continue;
+                }
+            };
+            self.next();
+            if seen.contains(&key) {
+                self.error(format!("duplicate prop \"{}\"", key), &tok);
+            }
+            seen.push(key.clone());
+            self.eat_punct(":");
+            match self.parse_expr() {
+                Some(e) => {
+                    props.insert(key, e);
+                }
+                None => {
+                    self.recover();
+                    continue;
+                }
+            }
+            if self.at_punct(",") {
+                self.next();
+            }
+        }
+        self.eat_punct("}");
+        Some(json!({
+            "type": "Component",
+            "name": name,
+            "props": Value::Object(props),
+            "loc": tok_loc(&name_tok),
+        }))
     }
 
     // =======================================================================
@@ -644,6 +1098,7 @@ impl Parser {
         let mut props: Map<String, Value> = Map::new();
         let mut children: Vec<Value> = Vec::new();
         let mut onClick: Option<Vec<Value>> = None;
+        let mut onChange: Option<Vec<Value>> = None;
         let mut seen: Vec<String> = Vec::new();
 
         self.eat_punct("{");
@@ -684,6 +1139,21 @@ impl Parser {
                 }
             }
 
+            // Custom component instance (containers only)
+            if let TokenKind::Ident(cname) = &tok.kind {
+                if !COMPONENT_NAMES.contains(&cname.as_str()) && self.peek(1).kind.punct() == Some("{") {
+                    if !container {
+                        self.error(format!("{} cannot contain components", name), &tok);
+                        self.skip_ui_node();
+                        continue;
+                    }
+                    if let Some(child) = self.parse_custom_component() {
+                        children.push(child);
+                    }
+                    continue;
+                }
+            }
+
             let key = match &tok.kind {
                 TokenKind::Ident(s) => s.clone(),
                 _ => {
@@ -704,6 +1174,22 @@ impl Parser {
                 seen.push("onClick".to_string());
                 self.eat_punct(":");
                 onClick = Some(self.parse_handler());
+                continue;
+            }
+
+            if key == "onChange" {
+                if !["TextInput", "Select", "Slider", "Checkbox"].contains(&name.as_str()) {
+                    self.error(
+                        "onChange is only supported on TextInput, Select, Slider and Checkbox".to_string(),
+                        &tok,
+                    );
+                }
+                if seen.contains(&"onChange".to_string()) {
+                    self.error("duplicate prop \"onChange\"".to_string(), &tok);
+                }
+                seen.push("onChange".to_string());
+                self.eat_punct(":");
+                onChange = Some(self.parse_handler());
                 continue;
             }
 
@@ -746,6 +1232,35 @@ impl Parser {
             seen.push(key.clone());
 
             self.eat_punct(":");
+
+            if def.t == "strArray" {
+                if self.at_punct("[") {
+                    self.next();
+                    let mut list: Vec<Value> = Vec::new();
+                    while !self.at_punct("]") {
+                        if self.at_end() {
+                            self.error("missing closing \"]\" for list prop".to_string(), &tok);
+                            break;
+                        }
+                        match self.parse_value() {
+                            Some(Prim::Str(s)) => list.push(json!(s)),
+                            _ => self.error(
+                                format!("\"{}\" must be a list of strings: [\"a\", \"b\"]", key),
+                                &tok,
+                            ),
+                        }
+                        if !self.at_punct("]") {
+                            self.eat_punct(",");
+                        }
+                    }
+                    self.eat_punct("]");
+                    props.insert(key.clone(), Value::Array(list));
+                } else {
+                    self.error(format!("\"{}\" must be a list of strings: [\"a\", \"b\"]", key), &tok);
+                }
+                continue;
+            }
+
             match self.parse_value() {
                 None => self.recover(),
                 Some(v) => {
@@ -775,6 +1290,9 @@ impl Parser {
         });
         if let Some(h) = onClick {
             node["onClick"] = Value::Array(h);
+        }
+        if let Some(h) = onChange {
+            node["onChange"] = Value::Array(h);
         }
         Some(node)
     }
@@ -815,6 +1333,12 @@ impl Parser {
                 return Some(json!({
                     "type": "For", "item": item, "iterable": iterable, "children": children, "loc": tok_loc(&tok),
                 }));
+            }
+        }
+        // Custom component instance
+        if let TokenKind::Ident(n) = &tok.kind {
+            if !COMPONENT_NAMES.contains(&n.as_str()) && self.peek(1).kind.punct() == Some("{") {
+                return self.parse_custom_component();
             }
         }
         self.parse_component()
@@ -932,7 +1456,7 @@ impl Parser {
         }
     }
 
-    /// onClick: una sentencia o un { bloque }.
+    /// onClick/onChange: una sentencia o un { bloque }.
     fn parse_handler(&mut self) -> Vec<Value> {
         if self.at_punct("{") {
             return self.parse_block();
@@ -1408,6 +1932,8 @@ mod tests {
         assert_eq!(p["title"], "Demo");
         assert_eq!(p["size"], json!([400, 300]));
         assert_eq!(p["theme"], "light");
+        assert_eq!(p["components"], json!([]));
+        assert_eq!(p["imports"], json!([]));
     }
 
     #[test]
@@ -1432,11 +1958,83 @@ mod tests {
     }
 
     #[test]
+    fn parses_custom_components() {
+        let p = parse(
+            "App { title: \"x\" size: (1,1) component Card(t) { state n = t derived d = n * 2 fn up() { return n + 1 } Column { Text { value: \"${n}\" } } } Column { Card { t: 1 } } }",
+        );
+        assert_eq!(p["components"][0]["name"], "Card");
+        assert_eq!(p["components"][0]["params"][0]["name"], "t");
+        assert_eq!(p["components"][0]["states"]["n"]["expr"]["type"], "Var");
+        assert_eq!(p["components"][0]["derived"]["d"]["expr"]["type"], "Binary");
+        assert_eq!(p["components"][0]["fns"][0]["name"], "up");
+        let inst = &p["ui"]["children"][0]["children"][0];
+        assert_eq!(inst["type"], "Component");
+        assert_eq!(inst["name"], "Card");
+        assert_eq!(inst["props"]["t"]["value"], 1);
+    }
+
+    #[test]
+    fn parses_select_slider_onchange() {
+        let p = parse(
+            "App { title: \"x\" size: (1,1) state s = 0 Select { id: \"a\" options: [\"x\", \"y\"] bind: s onChange: s = 1 } Slider { id: \"b\" min: 0 max: 10 bind: s } TextInput { id: \"t\" bind: s onChange: s = 2 } }",
+        );
+        let sel = &p["ui"]["children"][0];
+        assert_eq!(sel["type"], "Select");
+        assert_eq!(sel["props"]["options"], json!(["x", "y"]));
+        assert_eq!(sel["props"]["bind"], "s");
+        assert_eq!(sel["onChange"][0]["type"], "Assign");
+        let slider = &p["ui"]["children"][1];
+        assert_eq!(slider["type"], "Slider");
+        assert_eq!(slider["props"]["max"], 10);
+        let input = &p["ui"]["children"][2];
+        assert_eq!(input["type"], "TextInput");
+        assert_eq!(input["props"]["bind"], "s");
+        assert_eq!(input["onChange"].as_array().unwrap().len(), 1);
+    }
+
+    #[test]
+    fn parses_imports() {
+        let dir = std::env::temp_dir().join(format!("kara-parser-test-{}", std::process::id()));
+        let _ = fs::create_dir_all(&dir);
+        fs::write(
+            dir.join("widgets.kara"),
+            "component Card(t) { Text { value: \"${t}\" } }\nfn helper() { return 1 }\n",
+        )
+        .unwrap();
+        let src = "import \"./widgets.kara\"\nApp { title: \"x\" size: (1,1) Column { Card { t: 1 } } }";
+        let (tokens, lex_errors) = lex(src);
+        let mut parser =
+            Parser::with_dir(tokens, lex_errors, Some(dir.clone()), Rc::new(RefCell::new(Vec::new())));
+        let program = parser.parse_program();
+        assert!(parser.errors.is_empty(), "errors: {:?}", parser.errors);
+        assert_eq!(program["components"][0]["name"], "Card");
+        assert_eq!(program["fns"][0]["name"], "helper");
+        assert_eq!(program["imports"][0]["spec"], "./widgets.kara");
+        // El módulo no puede contener un App block.
+        fs::write(dir.join("bad.kara"), "App { title: \"x\" size: (1,1) }").unwrap();
+        let src2 = "import \"./bad.kara\"\nApp { title: \"x\" size: (1,1) }";
+        let (tokens2, lex_errors2) = lex(src2);
+        let mut parser2 =
+            Parser::with_dir(tokens2, lex_errors2, Some(dir), Rc::new(RefCell::new(Vec::new())));
+        parser2.parse_program();
+        assert!(parser2.errors.iter().any(|e| e.message.contains("module file cannot contain")));
+    }
+
+    #[test]
+    fn parses_custom_instance_like_js() {
+        // `Foo { }` es una instancia de componente personalizado (igual que en JS:
+        // el error "unknown component" lo reporta expand/sema, no el parser).
+        let p = parse("App { title: \"x\" size: (1,1) Foo { } }");
+        assert_eq!(p["ui"]["children"][0]["type"], "Component");
+        assert_eq!(p["ui"]["children"][0]["name"], "Foo");
+    }
+
+    #[test]
     fn reports_errors() {
-        let (tokens, lex_errors) = lex("App { title: \"x\" Foo { } }");
+        let (tokens, lex_errors) = lex("App { title: \"x\" Text { value: \"a\" nope: 1 } }");
         let mut parser = Parser::new(tokens, lex_errors);
         parser.parse_program();
-        assert!(parser.errors.iter().any(|e| e.message.contains("unknown component")));
+        assert!(parser.errors.iter().any(|e| e.message.contains("unknown prop")));
     }
 }
 
@@ -1462,8 +2060,12 @@ fn main() {
         }
     };
 
+    let dir = fs::canonicalize(&input)
+        .ok()
+        .and_then(|p| p.parent().map(|p| p.to_path_buf()));
+
     let (tokens, lex_errors) = lex(&source);
-    let mut parser = Parser::new(tokens, lex_errors);
+    let mut parser = Parser::with_dir(tokens, lex_errors, dir, Rc::new(RefCell::new(Vec::new())));
     let program = parser.parse_program();
 
     if !parser.errors.is_empty() {

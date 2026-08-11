@@ -34,7 +34,7 @@ diagnostics**, type hovers and autocompletion, powered by a bundled
 # from the extension root
 npm install -g @vscode/vsce
 vsce package
-code --install-extension kara-lang-0.3.0.vsix
+code --install-extension kara-lang-0.4.0.vsix
 ```
 
 Or publish to the Marketplace:

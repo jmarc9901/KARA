@@ -1,0 +1,138 @@
+================================================================================
+ KARA — TAREAS PENDIENTES (checklist completo)
+ Actualizado: agosto 2026
+================================================================================
+
+ESTADO ACTUAL (YA HECHO — no repetir)
+--------------------------------------------------------------------------------
+  [x] v0.4.0 preparada (agosto 2026): builtins Map/Filter/Reduce +
+      SetTimeout/SetInterval, parser Rust en sync (test de paridad en CI),
+      test e2e del runtime, 2 ejemplos nuevos (tareas, reloj), docs EN+ES,
+      bump de versión 0.4.0 en todo el repo
+  [x] Repo publicado: https://github.com/jmarc9901/KARA (público, rama main)
+  [x] CI verde en GitHub (jobs: node, rust, tauri) — 100/100 tests
+  [x] Protección de rama en main (PRs + checks, sin force push)
+  [x] 10 topics + descripción en el repo
+  [x] Release v0.3.0 creado con notas
+  [x] GitHub Pages en vivo: https://jmarc9901.github.io/KARA/
+  [x] Paquete npm probado de punta a punta (tarball 155 KB, instalación limpia)
+  [x] Archivos de solidez: LICENSE Apache-2.0, NOTICE, SECURITY.md,
+      CITATION.cff, FUNDING.yml, CODE_OF_CONDUCT.md, CONTRIBUTING.md
+  [x] Docs en inglés (docs/en/) + español secundario (docs/es/)
+  [x] Web estática completa (landing, playground, docs, ejemplos, tutorial)
+  [x] Launch kit con textos listos: PROMOTION.md
+
+================================================================================
+ PASO 1 — PUBLICAR LOS ARTEFACTOS (hoy, ~30 min)
+================================================================================
+
+[ ] 1.1 Publicar paquete npm "kara-lang"
+    Desde la carpeta del proyecto (T:\AA\Desarrollos para mi Github\MiniFrameworkDesktop):
+      1) Si no tienes cuenta npm:  npm adduser
+      2) Publicar:                npm publish
+    Verificación: https://www.npmjs.com/package/kara-lang
+    Nota: el paquete ya está probado; si pide OTP (2FA), sigue las instrucciones.
+
+[ ] 1.2 Publicar la extensión VS Code "KARA"
+    Desde la carpeta vscode-kara/:
+      1) Instalar la herramienta:  npm install -g @vscode/vsce
+      2) Autenticarse:             vsce login jmarc9901
+         (te pedirá un token de Azure DevOps — crea un PAT de Marketplace)
+      3) Empaquetar y verificar:   npx vsce package
+      4) Publicar:                 npx vsce publish
+    Verificación: https://marketplace.visualstudio.com/publishers/jmarc9901
+
+================================================================================
+ PASO 2 — ANUNCIO DEL LANZAMIENTO (esta semana, ~1-2 horas)
+================================================================================
+
+[ ] 2.1 Publicar en Hacker News (texto listo en PROMOTION.md, sección 1)
+    - Título sugerido: "Show HN: KARA – a tiny reactive UI language with a real
+      compiler and a browser playground"
+    - Enlace: https://news.ycombinator.com/submit
+
+[ ] 2.2 Publicar en Reddit r/ProgrammingLanguages (texto listo, sección 2)
+    - https://www.reddit.com/r/ProgrammingLanguages/submit
+
+[ ] 2.3 Publicar thread en X/Twitter (4 tweets listos, sección 3)
+
+[ ] 2.4 Publicar post en LinkedIn (texto listo, sección 4)
+
+[ ] 2.5 Grabar demo de 60 segundos del playground (grabación de pantalla)
+    - Usar: https://jmarc9901.github.io/KARA/playground.html
+    - Mostrar: abrir, escribir ~10 líneas, ver la UI reactiva viva
+    - Guardar como GIF/MP4 y subirlo al README cuando puedas
+
+[ ] 2.6 Responder a TODOS los comentarios en menos de 24 horas
+
+================================================================================
+ PASO 3 — CADENCIA SEMANAL (6 semanas)
+================================================================================
+
+[ ] Semana 1: HN + Reddit + X + LinkedIn. Responder a todos los comentarios.
+[ ] Semana 2: npm publish (si no lo hiciste ya) + anuncio en X.
+              Añadir 2 ejemplos nuevos al repo (examples/).
+[ ] Semana 3: Cross-post en r/rust y r/desktoplinux.
+              Escribir post técnico: "How KARA's compiler works in 3,300 lines".
+[ ] Semana 4: Activar GitHub Discussions ("¿qué añadimos en v0.4?").
+              Crear primer issue "good first issue" para atraer contribuciones.
+[ ] Semana 5: Release v0.4.0 con 1 builtin nuevo + changelog + post en X.
+[ ] Semana 6: Revisar métricas (stars, issues, PRs).
+              Escribir "KARA: lessons from month one" en dev.to.
+
+REGLA DE ORO: cada semana publica algo visible (ejemplo, doc, builtin, fix)
+y responde a todo en 24h.
+
+================================================================================
+ PASO 4 — ROADMAP TÉCNICO v1.0 (2-4 semanas, opcional pero recomendado)
+================================================================================
+
+[ ] 4.1 Builtins nuevos (prioridad alta):
+    - Timers (setTimeout/setInterval)            [x] HECHO en v0.4: SetTimeout/SetInterval
+    - Más funciones de array (Map, Filter, Reduce) [x] HECHO en v0.4
+    - Window (abrir ventanas)                     [ ] pendiente
+    - Diálogos de archivo (File.Open dialog)      [ ] pendiente
+
+[ ] 4.2 Empaquetar Node DENTRO del binario Tauri
+    - Elimina la dependencia de "node" del PATH (hoy el shell lo necesita)
+    - Esto permite .exe/.app/AppImage que funcionan solos
+
+[ ] 4.3 Rendimiento del intérprete (bytecode) para apps grandes
+
+[ ] 4.4 Literales de objeto y anotaciones de tipo (documentadas como pendientes)
+
+[ ] 4.5 Más tests para las nuevas features + actualizar docs/en/ + CHANGELOG
+
+================================================================================
+ PASO 5 — MANTENIMIENTO CONTINUO
+================================================================================
+
+[ ] 5.1 Revisar y responder issues y PRs (github.com/jmarc9901/KARA/issues)
+[ ] 5.2 Releases regulares con changelog (ya tienes CHANGELOG.md)
+[ ] 5.3 Mantener CI verde siempre (protección de rama lo exige)
+[ ] 5.4 Actualizar la web cuando cambien cosas (el workflow de Pages es automático)
+[ ] 5.5 Añadir la demo GIF al README cuando grabes el video
+
+================================================================================
+ ENLACES ÚTILES
+================================================================================
+
+  Repo:              https://github.com/jmarc9901/KARA
+  Web en vivo:       https://jmarc9901.github.io/KARA/
+  Playground:        https://jmarc9901.github.io/KARA/playground.html
+  Release v0.3.0:    https://github.com/jmarc9901/KARA/releases/tag/v0.3.0
+  npm (sin publicar): https://www.npmjs.com/package/kara-lang
+  Docs EN:           https://github.com/jmarc9901/KARA/tree/main/docs/en
+  Docs ES:           https://github.com/jmarc9901/KARA/tree/main/docs/es
+  Launch kit:        PROMOTION.md (en la raíz del repo)
+  Roadmap:           ROADMAP.md (en la raíz del repo)
+
+================================================================================
+ METAS REALISTAS (para no frustrarte)
+================================================================================
+
+  - Año 1 con distribución constante: 200-1.000 stars, decenas de usuarios,
+    algunos PRs, reputación sólida en la comunidad de lenguajes indie.
+  - Es un logro enorme para un proyecto de una persona. La ingeniería ya está
+    hecha; ahora gana el que publica cada semana.
+================================================================================

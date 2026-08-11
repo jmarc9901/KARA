@@ -1,0 +1,21 @@
+// Live clock — SetTimeout/SetInterval are desktop-runtime builtins only
+// (the browser playground reports them as unavailable).
+App {
+  title: "Clock"
+  size: (320, 200)
+
+  state now = Now()
+  state timer = SetInterval(1000, "tick")
+
+  fn tick() {
+    now = Now()
+  }
+
+  Column {
+    padding: 24
+    spacing: 10
+    align: "center"
+    Text { value: "${now}" fontSize: 30 bold: true }
+    Text { value: "epoch ms — updates every second" color: "gray" fontSize: 12 }
+  }
+}

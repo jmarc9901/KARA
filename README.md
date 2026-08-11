@@ -18,6 +18,8 @@ With KARA you write:
 - **Static type checking** with inference (Int, Float, Bool, Str, Array)
 - **Modules** (`import "./file.kara"`) for reusable components and functions
 - `Select`/`Slider` widgets and `onChange` handlers on bound widgets
+- **Higher-order builtins** — `Map`/`Filter`/`Reduce` by function name — and
+  **timers** (`SetTimeout`/`SetInterval`, desktop runtime)
 
 Built-in tooling: **LSP** (`kara lsp`, zero dependencies), **VS Code
 extension** with live diagnostics and autocompletion, a browser **playground**
@@ -136,8 +138,10 @@ tauri build                # .exe / .app / AppImage
 
 ## Rust parser
 
-`parser/` emits the **same AST JSON** as the JS compiler (verified: identical
-output), so the runtime can consume `ast.json` unchanged.
+`parser/` emits the **same AST JSON** as the JS compiler — imports, custom
+components, `Select`/`Slider`, `onChange` and `loc.index` in UTF-16 units all
+match — verified by a CI parity test over every example, so the runtime can
+consume `ast.json` unchanged.
 
 ```bash
 cargo build --manifest-path parser/Cargo.toml
@@ -154,7 +158,7 @@ parser/target/debug/kara-parser src/main.kara build
 | `kara dev [entry]` | Builds the UI if needed and starts the runtime (hot-reload of `.kara`) |
 | `kara run [entry]` | Alias of `dev` |
 | `kara build [entry]` | Compiles the entry → `build/ast.json` (or `build/errors.json`) |
-| `kara test` | Runs the compiler and runtime test suites (100 tests) |
+| `kara test` | Runs the compiler and runtime suites (102 tests; e2e and parity are `npm run test:e2e` / `npm run test:parity`) |
 | `kara doctor` | Diagnoses the environment (node, deps, UI, cargo) |
 | `kara new <name>` | Creates a new project in `./<name>` |
 | `kara lsp` | Starts the language server (JSON-RPC 2.0 over stdio) |
@@ -171,6 +175,8 @@ Configuration: `kara.config.json` (`entry`, `outDir`, `port`).
 - `examples/lista.kara` — lists with `for` and the `Push` builtin
 - `examples/componentes.kara` — custom components with per-instance state
 - `examples/modulos.kara` + `examples/widgets.kara` — `import` of components and functions
+- `examples/tareas.kara` — todos with `Map`/`Filter`/`Reduce` and a `Slider` filter
+- `examples/reloj.kara` — live clock with `SetInterval` (desktop runtime)
 
 ## Website
 
@@ -186,7 +192,7 @@ npm run web:build
 
 ```text
 /compiler   Lexer, parser, semantic analysis, typecheck and expansion (JS) + tests
-/parser     Rust parser — FROZEN snapshot (experimental, may lag behind)
+/parser     Rust parser — in sync with the JS pipeline (CI parity test on every example)
 /runtime    Interpreter + HTTP/WebSocket server (hot-reload)
 /ui         Svelte render engine (widgets, themes, console, playground)
 /website    Static framework website (landing, docs, browser playground)

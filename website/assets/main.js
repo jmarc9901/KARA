@@ -43,6 +43,7 @@ const WIDGETS = new Set([
 
 const BUILTINS = new Set([
   'Print', 'Log', 'Alert', 'Random', 'Now', 'Length', 'Push', 'File.Read', 'File.Write',
+  'Map', 'Filter', 'Reduce', 'SetTimeout', 'SetInterval',
 ]);
 
 function esc(s) {

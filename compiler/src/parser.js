@@ -107,7 +107,11 @@ const CONTAINER_NAMES = new Set(
   Object.entries(COMPONENT_SCHEMA).filter(([, s]) => s.kind === 'container').map(([n]) => n)
 );
 
-export const BUILTIN_NAMES = ['Print', 'Alert', 'Random', 'Now', 'Length', 'Push', 'Log', 'File.Read', 'File.Write'];
+export const BUILTIN_NAMES = [
+  'Print', 'Alert', 'Random', 'Now', 'Length', 'Push', 'Log',
+  'Map', 'Filter', 'Reduce',
+  'File.Read', 'File.Write', 'SetTimeout', 'SetInterval',
+];
 const BUILTINS = new Set(BUILTIN_NAMES);
 
 function err(message, tok) {

@@ -123,6 +123,62 @@
     Item { title: "Card B", initial: extra }
   }
 }`,
+    tareas: `App {
+  title: "Todos"
+  size: (380, 520)
+
+  state newTask = ""
+  state tasks = ["Learn the compiler", "Publish on npm", "Record the demo"]
+  state minLen = 0
+
+  fn add() {
+    tasks = Push(tasks, newTask)
+    newTask = ""
+  }
+
+  fn short(t) {
+    return Length(t) <= minLen
+  }
+
+  fn count(total, t) {
+    return total + 1
+  }
+
+  fn shout(t) {
+    return t + "!"
+  }
+
+  derived n = Length(tasks)
+  derived visible = Filter(tasks, "short")
+  derived visibleCount = Reduce(visible, "count", 0)
+  derived shoutList = Map(tasks, "shout")
+
+  Column {
+    padding: 20
+    spacing: 12
+
+    Text { value: "📋 \${n} tasks" fontSize: 20 bold: true }
+
+    Row {
+      spacing: 8
+      TextInput { id: "newInput" bind: newTask placeholder: "New task…" }
+      Button { id: "addBtn" text: "Add" onClick: add() }
+    }
+
+    Text { value: "Show tasks with ≤ \${minLen} letters" }
+    Slider { id: "minSlider" bind: minLen min: 0 max: 40 }
+
+    if (visibleCount > 0) {
+      for (t in visible) {
+        Text { value: "• \${t}" }
+      }
+    } else {
+      Text { value: "(no tasks match that filter)" color: "gray" }
+    }
+
+    Text { value: "Shout: \${shoutList}" color: "gray" fontSize: 12 }
+  }
+}`,
   };
 
   const PRESET_NAMES = [
@@ -130,6 +186,7 @@
     ['formulario', 'Form'],
     ['lista', 'Reactive list'],
     ['componentes', 'Components'],
+    ['tareas', 'Todos'],
   ];
 
   // -------------------------------------------------------------------------

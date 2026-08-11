@@ -246,7 +246,7 @@ function handle(msg) {
             hoverProvider: true,
             completionProvider: { triggerCharacters: [':', ' ', '"'] },
           },
-          serverInfo: { name: 'kara-lsp', version: '0.3.0' },
+          serverInfo: { name: 'kara-lsp', version: '0.4.0' },
         },
       });
       break;

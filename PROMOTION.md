@@ -155,3 +155,130 @@ ships something visible** (example, doc, builtin, fix).
 - The playground with Console + AST tabs open
 - `kara doctor` green output
 - The VS Code extension showing diagnostics + hover
+
+---
+
+## 7. Publicaciones en español — YouTube · LinkedIn · Threads · X · Facebook
+
+Enlaces que puedes pegar en cualquier texto:
+
+- Playground (sin instalar nada): https://jmarc9901.github.io/KARA/playground.html
+- Repo: https://github.com/jmarc9901/KARA
+- Web: https://jmarc9901.github.io/KARA/
+- Instalar: `npm install -g kara-lang && kara new my-app && cd my-app && kara dev`
+
+### 7.1 YouTube (demo de ~60-90 s)
+
+**Título del video:**
+
+> Construí un lenguaje de programación para prototipar interfaces de escritorio — KARA
+
+**Descripción:**
+
+> KARA es un lenguaje declarativo y reactivo para prototipar UIs de escritorio.
+> Escribes la interfaz en texto plano y obtienes una vista previa en vivo en
+> segundos: compilador real (léxico → parser → análisis semántico → inferencia
+> de tipos), intérprete con hot-reload, componentes con estado propio, módulos
+> y un playground 100% en el navegador.
+>
+> ▶ Prueba sin instalar nada: https://jmarc9901.github.io/KARA/playground.html
+> 📦 Instalar: `npm install -g kara-lang && kara new my-app && kara dev`
+> 🔗 Código: https://github.com/jmarc9901/KARA (Apache-2.0)
+>
+> Lo que muestro en el video:
+> 1. Escribo ~10 líneas de KARA en el playground → la UI reacciona al instante.
+> 2. Componentes con estado por instancia y `derived` con grafo de dependencias.
+> 3. Módulos con `import` y builtins como `Map`/`Filter`/`Reduce` y timers.
+> 4. `kara dev` con hot-reload en la ventana nativa (Tauri).
+>
+> #programacion #lenguajedeprogramacion #compilador #desarrollo #opensource
+
+**Mini-guion para el video (60 s):**
+
+1. 0-10 s: abre el playground, pega el ejemplo del contador, pulsa ▶.
+2. 10-25 s: cambia el estado y muestra el error con línea y columna al romper algo.
+3. 25-40 s: crea un componente `Card` con estado local y duplícalo.
+4. 40-55 s: demo de la lista de tareas con `Map`/`Filter`/`Reduce`.
+5. 55-70 s: cierre con repo + instalación de una línea.
+
+### 7.2 LinkedIn
+
+> He construido un lenguaje de programación como proyecto personal: **KARA**, un
+> lenguaje declarativo y reactivo para prototipar interfaces de escritorio.
+>
+> La idea era que fuese pequeño y legible de principio a fin: compilador real
+> (léxico → parser → semántica → inferencia de tipos), intérprete con
+> hot-reload, componentes con estado propio, módulos, LSP sin dependencias,
+> extensión de VS Code y un playground que compila y ejecuta todo en el
+> navegador.
+>
+> En la v0.4 añadí builtins de orden superior (`Map`/`Filter`/`Reduce`),
+> temporizadores (`SetTimeout`/`SetInterval`), sincronicé el parser en Rust con
+> el compilador JS y un test de paridad en CI, y un test e2e del runtime.
+>
+> ▶ Pruébalo sin instalar nada: https://jmarc9901.github.io/KARA/playground.html
+> 📦 npm: `npm install -g kara-lang && kara new my-app && kara dev`
+> 🔗 Repo: https://github.com/jmarc9901/KARA
+>
+> Apache-2.0, documentación en inglés y español. ¿Feedback? ¡Bienvenido!
+
+### 7.3 Threads
+
+> Hilo: construí un lenguaje de programación en mi tiempo libre 🧵
+>
+> 1/4 Se llama **KARA**: un lenguaje declarativo y reactivo para prototipar UIs
+> de escritorio. Escribes la interfaz en texto plano y ves el resultado en vivo.
+> Pruébalo sin instalar nada 👉 https://jmarc9901.github.io/KARA/playground.html
+>
+> 2/4 No es un wrapper: tiene pipeline de compilación real (léxico → parser →
+> semántica → inferencia de tipos → expansión de componentes), intérprete con
+> hot-reload y componentes con estado por instancia.
+>
+> 3/4 La v0.4 añade `Map`/`Filter`/`Reduce`, temporizadores
+> (`SetTimeout`/`SetInterval`), parser en Rust sincronizado con paridad en CI
+> y un test e2e del runtime.
+>
+> 4/4 Código abierto (Apache-2.0), ~4.000 líneas legibles, docs en español e
+> inglés. Repo: https://github.com/jmarc9901/KARA
+> Instalar: `npm i -g kara-lang && kara new app && kara dev`
+
+### 7.4 X / Twitter
+
+**Post corto:**
+
+> Construí un lenguaje de programación para prototipar UIs de escritorio.
+> Declarativo, reactivo, con compilador real y playground en el navegador —
+> sin instalar nada 👉 https://jmarc9901.github.io/KARA/playground.html
+> Repo: https://github.com/jmarc9901/KARA
+
+**Hilo (alternativa):**
+
+> 1/3 Construí **KARA**, un lenguaje para prototipar UIs reactivas: `state` +
+> `derived` con grafo de dependencias, componentes con estado propio y módulos.
+> El playground compila y ejecuta todo en el navegador.
+>
+> 2/3 La v0.4 trae `Map`/`Filter`/`Reduce`, temporizadores
+> (`SetTimeout`/`SetInterval`), parser en Rust en sync (paridad verificada en
+> CI) y test e2e del runtime. 100% open source.
+>
+> 3/3 Pruébalo: https://jmarc9901.github.io/KARA/playground.html ·
+> `npm i -g kara-lang && kara new app && kara dev` · Repo:
+> https://github.com/jmarc9901/KARA
+
+### 7.5 Facebook
+
+> Construí un lenguaje de programación como proyecto personal: **KARA**, para
+> prototipar interfaces de escritorio de forma declarativa y reactiva.
+>
+> Puedes probarlo directamente en el navegador, sin instalar nada:
+> https://jmarc9901.github.io/KARA/playground.html
+>
+> Tiene compilador real (léxico → parser → semántica → tipos), intérprete con
+> hot-reload, componentes con estado propio, módulos y extensiones para VS
+> Code. La última versión añade funciones de orden superior (`Map`/`Filter`/
+> `Reduce`) y temporizadores.
+>
+> Código abierto (Apache-2.0) con documentación en español:
+> https://github.com/jmarc9901/KARA
+>
+> ¿Te gustaría ver algo así en un video tutorial? 👇

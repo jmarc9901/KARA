@@ -272,12 +272,23 @@ Structural nodes in the UI tree: `if (cond) { ... } else { ... }` and
 | `Now()` | — | `Int` (epoch ms) | always |
 | `Length(x)` | `Any` | `Int` | always (arrays and strings) |
 | `Push(list, ...)` | `Array, Any` | `Array` | always (immutable) |
+| `Map(list, "fn")` | `Array, Str` | `Array` | always (calls a KARA function by name) |
+| `Filter(list, "fn")` | `Array, Str` | `Array` | always (calls a KARA function by name) |
+| `Reduce(list, "fn", init)` | `Array, Str, Any` | `Any` | always (calls a KARA function by name) |
 | `File.Read(path)` | `Str` | `Str` | **desktop runtime only** (Node) |
 | `File.Write(path, data)` | `Str, Any` | `Null` | **desktop runtime only** (Node) |
+| `SetTimeout(ms, "fn")` | `Int, Str` | `Null` | **desktop runtime only** (Node) |
+| `SetInterval(ms, "fn")` | `Int, Str` | `Null` | **desktop runtime only** (Node) |
 
-> `File.Read`/`File.Write` are not available in the browser playground: the
-> interpreter reports them as unavailable there. `Http.Get(url)` is on the
-> roadmap (needs async support in the interpreter).
+> `Map`/`Filter`/`Reduce` take a **function name** as their second argument
+> (functions are not first-class values yet): `Map(items, "double")` calls
+> `fn double(x) { return x * 2 }` for each item.
+
+> `File.Read`/`File.Write`, `SetTimeout` and `SetInterval` are not available in
+> the browser playground: the interpreter reports them as unavailable there.
+> Timers schedule a KARA function on the desktop runtime's event loop and are
+> re-created on hot-reload. `Http.Get(url)` is on the roadmap (needs async
+> support in the interpreter).
 
 ## 13. Project layout
 

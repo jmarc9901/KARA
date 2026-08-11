@@ -1,4 +1,4 @@
-# KARA — API Reference (v0.3)
+# KARA — API Reference (v0.4)
 
 > **Nota:** Documentación en español conservada como referencia secundaria y
 > puede contener secciones desactualizadas. La versión vigente es la inglesa:
@@ -50,11 +50,20 @@ verdad del schema de widgets es `COMPONENT_SCHEMA` en `compiler/src/parser.js`.
 | `Now()` | — | `Int` (epoch ms) | siempre |
 | `Length(x)` | `Any` | `Int` | siempre (arrays y strings) |
 | `Push(list, ...)` | `Array, Any` | `Array` | siempre (inmutable) |
+| `Map(list, "fn")` | `Array, Str` | `Array` | siempre (llama a una fn KARA por nombre) |
+| `Filter(list, "fn")` | `Array, Str` | `Array` | siempre (llama a una fn KARA por nombre) |
+| `Reduce(list, "fn", init)` | `Array, Str, Any` | `Any` | siempre (llama a una fn KARA por nombre) |
 | `File.Read(path)` | `Str` | `Str` | **solo runtime de escritorio** (Node) |
 | `File.Write(path, data)` | `Str, Any` | `Null` | **solo runtime de escritorio** (Node) |
+| `SetTimeout(ms, "fn")` | `Int, Str` | `Null` | **solo runtime de escritorio** (Node) |
+| `SetInterval(ms, "fn")` | `Int, Str` | `Null` | **solo runtime de escritorio** (Node) |
 
-> En el playground (navegador) `File.Read`/`File.Write` reportan
-> `[playground] "File.Read" no está disponible en el navegador — ejecuta con kara dev`.
+> `Map`/`Filter`/`Reduce` reciben el **nombre de una función KARA** como segundo
+> argumento (las funciones aún no son valores de primera clase).
+
+> En el playground (navegador) `File.Read`/`File.Write`, `SetTimeout` y
+> `SetInterval` reportan
+> `[playground] "..." no está disponible en el navegador — ejecuta con kara dev`.
 
 > `Http.Get(url)` sigue en el roadmap (requiere soporte async en el intérprete).
 
@@ -90,7 +99,7 @@ App {
 | `kara dev [entry]` | Construye la UI si falta y arranca el runtime (hot-reload de `.kara`) |
 | `kara run [entry]` | Alias de `dev` |
 | `kara build [entry]` | Compila el entry → `build/ast.json` (o `build/errors.json`) |
-| `kara test` | Tests del compiler y del runtime (97 tests) |
+| `kara test` | Suites del compiler + runtime; e2e y paridad son scripts aparte (`npm run test:e2e`, `npm run test:parity`) |
 | `kara doctor` | Diagnostica el entorno |
 | `kara new <nombre>` | Crea un proyecto nuevo en `./<nombre>` |
 | `kara lsp` | Lanza el language server por stdio |

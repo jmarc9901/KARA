@@ -29,6 +29,9 @@ jobs:
       - name: Runtime tests
         run: node --test runtime/test/interpreter.test.js runtime/test/builtins.test.js
 
+      - name: E2E runtime test (server + WS + timers + hot-reload)
+        run: npm run test:e2e
+
       - name: Install UI deps + build
         run: |
           npm --prefix ui ci
@@ -60,6 +63,13 @@ jobs:
 
       - name: Test
         run: cargo test --manifest-path parser/Cargo.toml
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
+      - name: Parser parity vs JS compiler (every example)
+        run: node --test compiler/test/parity.test.js
 
       - name: Parse demo (smoke)
         run: |

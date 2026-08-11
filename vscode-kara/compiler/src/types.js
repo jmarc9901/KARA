@@ -32,9 +32,14 @@ const BUILTIN_SIGNATURES = {
   Now: { params: [], variadic: false, ret: TYPES.Int },
   Length: { params: [TYPES.Any], variadic: false, ret: TYPES.Int },
   Push: { params: [TYPES.Array, TYPES.Any], variadic: true, ret: TYPES.Array },
+  Map: { params: [TYPES.Array, TYPES.Str], variadic: false, ret: TYPES.Array },
+  Filter: { params: [TYPES.Array, TYPES.Str], variadic: false, ret: TYPES.Array },
+  Reduce: { params: [TYPES.Array, TYPES.Str, TYPES.Any], variadic: false, ret: TYPES.Any },
   Log: { params: ['Any'], variadic: true, ret: TYPES.Null },
   'File.Read': { params: [TYPES.Str], variadic: false, ret: TYPES.Str },
   'File.Write': { params: [TYPES.Str, TYPES.Any], variadic: false, ret: TYPES.Null },
+  SetTimeout: { params: [TYPES.Int, TYPES.Str], variadic: false, ret: TYPES.Null },
+  SetInterval: { params: [TYPES.Int, TYPES.Str], variadic: false, ret: TYPES.Null },
 };
 
 const NUMERIC = new Set([TYPES.Int, TYPES.Float]);

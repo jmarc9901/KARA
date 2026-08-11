@@ -4,13 +4,19 @@
 > language features but closing the gaps between KARA and "a tool developers
 > choose": packaging, components, tooling and ecosystem.
 
-## CURRENT STATE (v0.3) ✔
+## CURRENT STATE (v0.4) ✔
 
 - Complete JS compiler: lexer, parser with error recovery, sema, static
   typechecking with inference
 - **Custom components** with props, local state, `derived` and `fn`
   (compile-time expansion, per-instance state) ✔
 - `derived` ordered by **dependency graph** (forward refs + cycle detection) ✔
+- **v0.4 builtins**: `Map`/`Filter`/`Reduce` (higher-order, by function name)
+  and `SetTimeout`/`SetInterval` timers (desktop runtime) ✔
+- **Rust parser in sync** with the JS pipeline — imports, components,
+  `Select`/`Slider`, `onChange`; CI parity test over every example ✔
+- **E2E runtime test** (server + WS + timers + hot-reload) ✔
+- **2 new examples** (`tareas`, `reloj`) ✔
 - **Self-contained projects**: the CLI resolves `kara.config.json` by
   cwd/entry; `kara new` generates runnable projects ✔
 - Client-side playground, hot-reload, CLI (`dev/build/test/doctor/new/version`),
@@ -46,7 +52,8 @@
 
 - [x] Modules / multi-file (`import`), reusing the current pipeline
 - [ ] Slots/children in components
-- [ ] Additional events (`onChange` done; pending `onSubmit`, keyboard, timers)
+- [x] Additional events: `onChange` + **timers** (`SetTimeout`/`SetInterval`);
+      pending `onSubmit` and keyboard
 - [ ] Enforce type annotations on parameters (`fn f(x: Int)`)
 
 ## PHASE D — ECOSYSTEM

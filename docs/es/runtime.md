@@ -16,7 +16,8 @@ El runtime de KARA es una arquitectura de **tres capas** (más empaquetado) dise
 > embebido en el binario) sigue en el roadmap.
 >
 > **v0.3 añade:** módulos/`import` (el runtime resuelve imports relativos al
-> entry), builtins de OS inyectados (`File.Read`/`File.Write` vía
+> entry), builtins de OS inyectados (`File.Read`/`File.Write`) y timers
+> (`SetTimeout`/`SetInterval`) vía
 > `program.extraBuiltins`, solo escritorio), eventos `select`/`slider` y el
 > handler `onChange`, errores de runtime con `línea/columna`, y un **LSP**
 > (`kara lsp`) que reutiliza el compiler para diagnósticos/hover/completado.

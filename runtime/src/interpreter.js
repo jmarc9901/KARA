@@ -235,6 +235,28 @@ export const DEFAULT_BUILTINS = {
     const list = Array.isArray(args[0]) ? [...args[0]] : [];
     return [...list, ...args.slice(1)];
   },
+  // Higher-order builtins: the second argument is the name of a KARA function
+  // (functions are not first-class values yet). Works in the playground too.
+  Map: (args, ctx) => {
+    const list = Array.isArray(args[0]) ? args[0] : [];
+    const fn = ctx.fns.get(String(args[1] ?? ''));
+    if (!fn) return list;
+    return list.map((item) => invokeUserFn(fn, [item], ctx));
+  },
+  Filter: (args, ctx) => {
+    const list = Array.isArray(args[0]) ? args[0] : [];
+    const fn = ctx.fns.get(String(args[1] ?? ''));
+    if (!fn) return list;
+    return list.filter((item) => truthy(invokeUserFn(fn, [item], ctx)));
+  },
+  Reduce: (args, ctx) => {
+    const list = Array.isArray(args[0]) ? args[0] : [];
+    const fn = ctx.fns.get(String(args[1] ?? ''));
+    let acc = args[2] ?? null;
+    if (!fn) return acc;
+    for (const item of list) acc = invokeUserFn(fn, [acc, item], ctx);
+    return acc;
+  },
 };
 
 /**

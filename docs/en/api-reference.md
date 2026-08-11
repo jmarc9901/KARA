@@ -1,4 +1,4 @@
-# KARA — API Reference (v0.3)
+# KARA — API Reference (v0.4)
 
 Reference for widgets, props, builtins, keywords, CLI and tooling. The source
 of truth for the widget schema is `COMPONENT_SCHEMA` in
@@ -55,11 +55,21 @@ of truth for the widget schema is `COMPONENT_SCHEMA` in
 | `Now()` | — | `Int` (epoch ms) | always |
 | `Length(x)` | `Any` | `Int` | always (arrays and strings) |
 | `Push(list, ...)` | `Array, Any` | `Array` | always (immutable) |
+| `Map(list, "fn")` | `Array, Str` | `Array` | always (calls a KARA fn by name) |
+| `Filter(list, "fn")` | `Array, Str` | `Array` | always (calls a KARA fn by name) |
+| `Reduce(list, "fn", init)` | `Array, Str, Any` | `Any` | always (calls a KARA fn by name) |
 | `File.Read(path)` | `Str` | `Str` | **desktop runtime only** (Node) |
 | `File.Write(path, data)` | `Str, Any` | `Null` | **desktop runtime only** (Node) |
+| `SetTimeout(ms, "fn")` | `Int, Str` | `Null` | **desktop runtime only** (Node) |
+| `SetInterval(ms, "fn")` | `Int, Str` | `Null` | **desktop runtime only** (Node) |
 
-> In the playground (browser) `File.Read`/`File.Write` report
-> `[playground] "File.Read" is not available in the browser — run with kara dev`.
+> `Map`/`Filter`/`Reduce` take the **name of a KARA function** as their second
+> argument (functions are not first-class values yet):
+> `Map(items, "double")`.
+
+> In the playground (browser) `File.Read`/`File.Write`, `SetTimeout` and
+> `SetInterval` report `[playground] "..." is not available in the browser —
+> run with kara dev`.
 
 > `Http.Get(url)` is on the roadmap (needs async support in the interpreter).
 
@@ -95,7 +105,7 @@ App {
 | `kara dev [entry]` | Builds the UI if needed and starts the runtime (hot reload of `.kara`) |
 | `kara run [entry]` | Alias for `dev` |
 | `kara build [entry]` | Compiles the entry → `build/ast.json` (or `build/errors.json`) |
-| `kara test` | Runs the compiler and runtime test suites (100 tests) |
+| `kara test` | Runs the compiler + runtime suites; e2e and parity tests are separate scripts (`npm run test:e2e`, `npm run test:parity`) |
 | `kara doctor` | Diagnoses the environment |
 | `kara new <name>` | Creates a new project in `./<name>` |
 | `kara lsp` | Starts the language server over stdio |

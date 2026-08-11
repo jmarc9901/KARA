@@ -13,7 +13,8 @@ to run cross-platform desktop applications.
 > final packaging (embedded runtime in the binary) is still on the roadmap.
 >
 > **v0.3 adds:** modules/`import` (the runtime resolves imports relative to
-> the entry), injected OS builtins (`File.Read`/`File.Write` via
+> the entry), injected OS builtins (`File.Read`/`File.Write`) and timers
+> (`SetTimeout`/`SetInterval`) via
 > `program.extraBuiltins`, desktop only), `select`/`slider` events and the
 > `onChange` handler, runtime errors with `line/col`, and an **LSP**
 > (`kara lsp`) that reuses the compiler for diagnostics/hover/completion.

@@ -2,6 +2,31 @@
 
 All notable changes to KARA.
 
+## [0.4.0] — 2026-08-10
+
+### Language
+- **Higher-order builtins**: `Map(list, "fn")`, `Filter(list, "fn")` and
+  `Reduce(list, "fn", initial)` call KARA functions by **name** (functions are
+  not first-class values yet). They are pure and work in the browser playground.
+- **Timers**: `SetTimeout(ms, "fn")` and `SetInterval(ms, "fn")` schedule a KARA
+  function on the server event loop (desktop runtime only; the playground
+  reports them as unavailable). Timers are cleared and re-created on hot-reload.
+- **New examples**: `examples/reloj.kara` (live clock with `SetInterval`) and
+  `examples/tareas.kara` (todos with `Map`/`Filter`/`Reduce` + `Slider`).
+
+### Tooling
+- **Rust parser in sync with the JS compiler**: `import`/modules, custom
+  components, `Select`/`Slider`, `onChange`, `strArray` (`options`) and the
+  `components`/`imports` AST fields. `loc.index` counts UTF-16 units so the
+  emitted AST JSON is **identical** to the JS parser (verified by a new parity
+  test over every example, enforced in CI).
+- **E2E runtime test** (`npm run test:e2e`): boots the real server and drives
+  the WebSocket protocol — clicks, timers and hot-reload.
+- **CI**: new parity (JS ↔ Rust) and e2e steps.
+
+### Packaging
+- Version **0.4.0** everywhere (package, Tauri, Cargo, CITATION, LSP).
+
 ## [0.3.0] — 2026-08-08
 
 ### Language

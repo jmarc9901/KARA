@@ -15,7 +15,11 @@ export { compile } from './parser.js';
 export { COMPONENT_SCHEMA, BUILTIN_NAMES } from './parser.js';
 export { typecheck, inferTypeMap } from './types.js';
 
-export const BUILTINS = ['Print', 'Alert', 'Random', 'Now', 'Length', 'Push', 'Log', 'File.Read', 'File.Write'];
+export const BUILTINS = [
+  'Print', 'Alert', 'Random', 'Now', 'Length', 'Push', 'Log',
+  'Map', 'Filter', 'Reduce',
+  'File.Read', 'File.Write', 'SetTimeout', 'SetInterval',
+];
 
 /**
  * Default import resolver: reads sibling .kara files relative to the entry.
@@ -47,7 +51,7 @@ export async function build(inputPath, outDir) {
 
   if (result.ok) {
     const program = {
-      version: '0.3.0',
+      version: '0.4.0',
       entry: path.basename(inputPath),
       ...result.program,
     };

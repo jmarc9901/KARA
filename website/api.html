@@ -89,8 +89,13 @@
             <tr><td><code>Now()</code></td><td>—</td><td>Int (epoch ms)</td><td>always</td></tr>
             <tr><td><code>Length(x)</code></td><td>Any</td><td>Int</td><td>always (arrays, strings)</td></tr>
             <tr><td><code>Push(list, ...)</code></td><td>Array, Any</td><td>Array</td><td>always (immutable)</td></tr>
+            <tr><td><code>Map(list, "fn")</code></td><td>Array, Str</td><td>Array</td><td>always (calls a KARA fn by name)</td></tr>
+            <tr><td><code>Filter(list, "fn")</code></td><td>Array, Str</td><td>Array</td><td>always (calls a KARA fn by name)</td></tr>
+            <tr><td><code>Reduce(list, "fn", init)</code></td><td>Array, Str, Any</td><td>Any</td><td>always (calls a KARA fn by name)</td></tr>
             <tr><td><code>File.Read(path)</code></td><td>Str</td><td>Str</td><td>desktop runtime only</td></tr>
             <tr><td><code>File.Write(path, data)</code></td><td>Str, Any</td><td>Null</td><td>desktop runtime only</td></tr>
+            <tr><td><code>SetTimeout(ms, "fn")</code></td><td>Int, Str</td><td>Null</td><td>desktop runtime only</td></tr>
+            <tr><td><code>SetInterval(ms, "fn")</code></td><td>Int, Str</td><td>Null</td><td>desktop runtime only</td></tr>
           </tbody>
         </table>
       </div>
@@ -113,7 +118,7 @@
             <tr><td><code>kara dev [entry]</code></td><td>Builds the UI if needed, starts the runtime with hot-reload</td></tr>
             <tr><td><code>kara run [entry]</code></td><td>Alias for dev</td></tr>
             <tr><td><code>kara build [entry]</code></td><td>Compiles the entry → <code>build/ast.json</code></td></tr>
-            <tr><td><code>kara test</code></td><td>Runs the compiler and runtime test suites (100 tests)</td></tr>
+            <tr><td><code>kara test</code></td><td>Runs the compiler + runtime suites (102 tests)</td></tr>
             <tr><td><code>kara doctor</code></td><td>Diagnoses the environment</td></tr>
             <tr><td><code>kara new &lt;name&gt;</code></td><td>Creates a project in <code>./&lt;name&gt;</code></td></tr>
             <tr><td><code>kara lsp</code></td><td>Starts the language server (JSON-RPC 2.0 over stdio)</td></tr>

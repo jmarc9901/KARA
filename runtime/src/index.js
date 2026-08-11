@@ -51,12 +51,16 @@ let state = {};
 let lastErrors = [];
 
 async function reload() {
+  // Timers belong to the previous program — clear them before recompiling.
+  clearTimers();
   try {
     const result = await build(entry, outDir);
     if (result.ok) {
       program = result.program;
-      // OS builtins (File.Read/Write) are only available in the desktop runtime.
-      program.extraBuiltins = OS_BUILTINS;
+      // OS builtins (File.Read/Write) and timers (SetTimeout/SetInterval) are
+      // only available in the desktop runtime; the playground reports them
+      // as unavailable.
+      program.extraBuiltins = { ...OS_BUILTINS, ...makeTimerBuiltins() };
       state = evalInitialState(program);
       lastErrors = [];
       return { ok: true };
@@ -186,6 +190,61 @@ function publishState() {
   if (program) {
     const snapshot = { ...state, ...computeDerived(program, state) };
     broadcast({ type: 'state', state: snapshot });
+  }
+}
+
+// ---------------------------------------------------------------------------
+// Timers — SetTimeout(ms, "fn") / SetInterval(ms, "fn")
+// ---------------------------------------------------------------------------
+// Desktop-runtime only: they schedule a KARA function by name on the server
+// event loop and broadcast the updated state (with derived values) on fire.
+const timerRegistry = new Map(); // handle -> 'timeout' | 'interval'
+
+function makeTimerBuiltins() {
+  return {
+    SetTimeout: (args) => {
+      const ms = Math.max(0, Number(args[0] ?? 0));
+      const handle = setTimeout(() => fireTimer(String(args[1] ?? '')), ms);
+      timerRegistry.set(handle, 'timeout');
+      return null;
+    },
+    SetInterval: (args) => {
+      const ms = Math.max(1, Number(args[0] ?? 0));
+      const handle = setInterval(() => fireTimer(String(args[1] ?? '')), ms);
+      timerRegistry.set(handle, 'interval');
+      return null;
+    },
+  };
+}
+
+function clearTimers() {
+  for (const [handle, kind] of timerRegistry) {
+    if (kind === 'interval') clearInterval(handle);
+    else clearTimeout(handle);
+  }
+  timerRegistry.clear();
+}
+
+/** Run a KARA function scheduled by a timer and broadcast the new state. */
+function fireTimer(name) {
+  if (!program) return;
+  const fn = (program.fns ?? []).find((f) => f.name === name);
+  if (!fn) {
+    broadcast({
+      type: 'error',
+      errors: [{ kind: 'RuntimeError', message: `timer: unknown function "${name}"` }],
+    });
+    return;
+  }
+  const ctx = {
+    onLog: (line) => broadcast({ type: 'log', line }),
+    onAlert: (message) => broadcast({ type: 'alert', message }),
+  };
+  try {
+    runHandler(program, fn.body, state, ctx);
+    publishState();
+  } catch (e) {
+    broadcastRuntimeError(e);
   }
 }
 

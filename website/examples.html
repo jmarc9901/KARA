@@ -4,7 +4,7 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Examples — KARA</title>
-    <meta name="description" content="KARA examples: counter, form, reactive list, custom components and modules." />
+    <meta name="description" content="KARA examples: counter, form, reactive list, custom components, modules and todos with Map/Filter/Reduce." />
     <link rel="icon" type="image/svg+xml" href="assets/favicon.svg" />
     <link rel="stylesheet" href="assets/style.css" />
   </head>
@@ -28,7 +28,7 @@
 
     <article class="docs">
       <h1>Examples</h1>
-      <p class="subtitle">Five small apps that show the language. Every one runs in the playground —
+      <p class="subtitle">Six small apps that show the language. Every one runs in the playground —
       click the link to open it.</p>
 
       <h2>1 · Counter <span style="color: var(--faint); font-weight: 400; font-size: 14px">— state, derived, conditional rendering</span></h2>
@@ -199,6 +199,66 @@ App {
         Modules need a file resolver, so they run with <code>kara dev examples/modulos.kara</code>
         rather than in the browser playground.
       </blockquote>
+
+      <h2>6 · Todos <span style="color: var(--faint); font-weight: 400; font-size: 14px">— higher-order builtins Map, Filter, Reduce</span></h2>
+      <p>Open in <a href="playground.html#tareas">playground →</a></p>
+      <pre class="code" data-code="tareas"></pre>
+      <script type="text/kara" data-code="tareas">App {
+  title: "Todos"
+  size: (380, 520)
+
+  state newTask = ""
+  state tasks = ["Learn the compiler", "Publish on npm", "Record the demo"]
+  state minLen = 0
+
+  fn add() {
+    tasks = Push(tasks, newTask)
+    newTask = ""
+  }
+
+  fn short(t) {
+    return Length(t) <= minLen
+  }
+
+  fn count(total, t) {
+    return total + 1
+  }
+
+  fn shout(t) {
+    return t + "!"
+  }
+
+  derived n = Length(tasks)
+  derived visible = Filter(tasks, "short")
+  derived visibleCount = Reduce(visible, "count", 0)
+  derived shoutList = Map(tasks, "shout")
+
+  Column {
+    padding: 20
+    spacing: 12
+
+    Text { value: "📋 ${n} tasks" fontSize: 20 bold: true }
+
+    Row {
+      spacing: 8
+      TextInput { id: "newInput" bind: newTask placeholder: "New task…" }
+      Button { id: "addBtn" text: "Add" onClick: add() }
+    }
+
+    Text { value: "Show tasks with ≤ ${minLen} letters" }
+    Slider { id: "minSlider" bind: minLen min: 0 max: 40 }
+
+    if (visibleCount > 0) {
+      for (t in visible) {
+        Text { value: "• ${t}" }
+      }
+    } else {
+      Text { value: "(no tasks match that filter)" color: "gray" }
+    }
+
+    Text { value: "Shout: ${shoutList}" color: "gray" fontSize: 12 }
+  }
+}</script>
     </article>
 
     <footer class="footer">

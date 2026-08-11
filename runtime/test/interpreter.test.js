@@ -164,6 +164,54 @@ test('builtins: Print/Alert/Random/Length/Now', () => {
   assert.deepEqual(alerts, ['hi']);
 });
 
+test('Map/Filter/Reduce call user functions by name', () => {
+  const p = prog(`
+    App { title: "T" size: (1,1)
+      state nums = [1, 2, 3, 4]
+      state dobles = Map(nums, "doble")
+      state pares = Filter(nums, "esPar")
+      state total = Reduce(nums, "suma", 0)
+      fn doble(x) { return x * 2 }
+      fn esPar(x) { return x % 2 == 0 }
+      fn suma(a, b) { return a + b }
+    }
+  `);
+  const state = evalInitialState(p);
+  assert.deepEqual(state.dobles, [2, 4, 6, 8]);
+  assert.deepEqual(state.pares, [2, 4]);
+  assert.equal(state.total, 10);
+});
+
+test('Map/Filter/Reduce work inside handlers too', () => {
+  const p = prog(`
+    App { title: "T" size: (1,1)
+      state nums = [1, 2, 3]
+      state out = []
+      fn por10(x) { return x * 10 }
+      Button { id: "b" text: "B" onClick: out = Map(nums, "por10") }
+    }
+  `);
+  const state = evalInitialState(p);
+  runHandler(p, p.ui.children[0].onClick, state);
+  assert.deepEqual(state.out, [10, 20, 30]);
+});
+
+test('Map/Filter/Reduce fns close over outer state', () => {
+  const p = prog(`
+    App { title: "T" size: (1,1)
+      state minLen = 3
+      state words = ["a", "bb", "ccc", "dddd"]
+      derived visible = Filter(words, "short")
+      derived visibleCount = Reduce(visible, "count", 0)
+      fn short(t) { return Length(t) <= minLen }
+      fn count(total, t) { return total + 1 }
+    }
+  `);
+  const state = evalInitialState(p);
+  assert.deepEqual(state.visible, ['a', 'bb', 'ccc']);
+  assert.equal(state.visibleCount, 3);
+});
+
 test('division and modulo', () => {
   const p = prog(`
     App { title: "T" size: (1,1)
