@@ -167,153 +167,195 @@ Enlaces que puedes pegar en cualquier texto:
 - Web: https://jmarc9901.github.io/KARA/
 - Instalar: `npm install -g kara-lang && kara new my-app && cd my-app && kara dev`
 
-### El ángulo humano (úsalo en todas)
+### La verdad sobre KARA (úsala como guía en todos los textos)
 
-> Soy de Cuba. Aquí los apagones y la conexión inestable son parte de la vida
-> diaria, así que aprendí a construir software que funciona sin internet.
-> KARA es mi lenguaje de programación: el compilador, el intérprete, el LSP y
-> la documentación corren 100% en tu máquina, sin servidor y sin conexión.
-> Si lo construí así, tú puedes usarlo en cualquier lugar del mundo.
+**Qué es:** un lenguaje pequeño para prototipar interfaces de escritorio con
+vista previa instantánea. Tiene un pipeline de compilación real — lexer,
+parser con recuperación de errores, análisis semántico, inferencia de tipos y
+expansión de componentes — en ~3.500 líneas de JavaScript sin dependencias
+(compilador + intérprete; el parser en Rust añade ~2.000 líneas más).
+Incluye intérprete con hot-reload, `state`/`derived` con grafo de
+dependencias, componentes con estado por instancia, módulos, un LSP sin
+dependencias, una extensión de VS Code y un playground que compila y ejecuta
+todo en el navegador, sin servidor. 103 tests, Apache-2.0, docs EN + ES.
+
+**Qué NO es (ser honesto suma, no resta):** no es un framework de producción
+ni compite con Tauri, Electron, Svelte o React. El shell de escritorio (Tauri)
+todavía necesita Node instalado — los ejecutables no son autónomos aún. No
+tiene debugger, ni object literals, ni funciones de primera clase, ni async.
+Su nicho es doble: prototipar una UI de escritorio en minutos, y aprender cómo
+funciona un compilador leyendo uno real de principio a fin.
+
+**El origen (una línea, con dignidad):** lo construí desde Cuba, donde la
+conexión va y viene; por eso todo corre en tu máquina, sin depender de la red.
 
 ### 7.1 YouTube Shorts (~45 s, vertical)
 
-**Título:** Construí un lenguaje de programación… en Cuba 🇨🇺
+**Título:** Hice un lenguaje de programación en miniatura (y te enseño qué NO es)
 
-**Guion con planos (pantalla vertical):**
+**Guion con planos:**
 
-| Tiempo | Plano | Texto en pantalla / voz |
+| Tiempo | Plano | Voz |
 |---|---|---|
-| 0-3 s | Manos tecleando, fondo sencillo | "Soy de Cuba. Aquí los apagones son parte de la vida." |
-| 3-10 s | Playground: escribiendo 5 líneas | "Así que construí mi propio lenguaje de programación: KARA." |
-| 10-20 s | La UI reacciona en vivo al teclear | "Escribes la interfaz en texto plano… y se convierte en una app reactiva. Sin instalar nada." |
-| 20-32 s | Demo: contador + error con línea y columna | "Compilador real, inferencia de tipos, hot-reload. Todo corre en tu navegador o en tu máquina." |
-| 32-40 s | Móvil con poca señal (con dignidad, sin drama) | "Aprendí a programar con apagones y conexión inestable: KARA funciona sin internet." |
-| 40-45 s | Playground + repo en pantalla | "Pruébalo gratis: enlace en la descripción. Hecho en Cuba, para el mundo." |
+| 0-3 s | Manos tecleando, fondo sencillo | "No hay empresa ni equipo: solo yo y mi laptop." |
+| 3-10 s | Playground: escribir 5 líneas y ver la UI | "Construí un lenguaje de programación: KARA. Compilador de verdad, en miniatura." |
+| 10-20 s | La UI reacciona al teclear | "Declaras la interfaz, escribes la lógica, el estado es reactivo. Todo compila e interpreta en tu navegador." |
+| 20-30 s | Pestaña AST + error con línea y columna | "Tiene lexer, parser, análisis semántico e inferencia de tipos — como los grandes, pero en ~3.500 líneas que se leen de principio a fin." |
+| 30-38 s | kara dev + hot-reload | "También corre en tu máquina con hot-reload. Funciona sin internet — lo hice en Cuba, donde la conexión va y viene." |
+| 38-45 s | Repo y playground en pantalla | "Es open source. Si quieres ver un compilador por dentro, este es un buen punto de partida. Enlace en la descripción." |
 
 **Descripción:**
-> Construí un lenguaje de programación desde Cuba, un país donde los apagones y
-> la conexión inestable son parte del día a día. Por eso KARA funciona sin
-> internet: compilador, intérprete y playground corren 100% local.
+> KARA es un lenguaje pequeño para prototipar interfaces de escritorio con
+> vista previa instantánea. Compilador real (lexer → parser → semántica →
+> tipos → expansión de componentes) en ~3.500 líneas de JS sin dependencias,
+> intérprete con hot-reload, LSP y playground 100% en el navegador.
 >
-> ▶ Prueba sin instalar nada: https://jmarc9901.github.io/KARA/playground.html
-> 📦 Instalar: `npm install -g kara-lang && kara new my-app && kara dev`
-> 🔗 Código: https://github.com/jmarc9901/KARA (Apache-2.0, docs en español)
+> No es un framework de producción: es para prototipar en minutos y para
+> aprender compiladores leyendo uno. El shell Tauri aún necesita Node.
 >
-> #programacion #lenguajedeprogramacion #compilador #cuba #opensource
-
-### 7.2 YouTube (video completo, 2-4 min)
-
-**Título:** Construí un lenguaje de programación desde Cuba (con apagones y sin conexión estable)
-
-**Descripción:**
-> Soy desarrollador en Cuba. Entre apagones y una conexión que va y viene,
-> construí KARA: un lenguaje completo para prototipar interfaces de escritorio
-> — compilador real (léxico → parser → análisis semántico → inferencia de
-> tipos), intérprete con hot-reload, componentes con estado propio, módulos,
-> LSP y playground 100% en el navegador.
->
-> Lo diseñé para funcionar sin internet: todo corre en tu máquina. Eso no fue
-> un capricho: fue una necesidad.
+> 103 tests · Apache-2.0 · docs en español e inglés. Lo hice desde Cuba, donde
+> la conexión va y viene — por eso todo corre local.
 >
 > ▶ Pruébalo: https://jmarc9901.github.io/KARA/playground.html
 > 📦 `npm install -g kara-lang && kara new my-app && kara dev`
 > 🔗 https://github.com/jmarc9901/KARA
 >
-> Guion sugerido: 1) qué es KARA (30 s) · 2) por qué offline-first y la
-> realidad de Cuba (30 s) · 3) demo en el playground (60 s) · 4) componentes,
-> módulos, Map/Filter/Reduce y timers (60 s) · 5) kara dev + hot-reload (30 s)
-> · 6) cierre con repo (30 s).
+> #programacion #lenguajedeprogramacion #compilador #opensource
+
+### 7.2 YouTube (video completo, 2-4 min)
+
+**Título:** Construí un lenguaje de programación en miniatura — KARA (y qué NO es)
+
+**Descripción:**
+> KARA es un lenguaje que hice para prototipar interfaces de escritorio con
+> vista previa instantánea: declarativo para la UI, imperativo para la
+> lógica, reactivo para el estado.
 >
-> #programacion #lenguajedeprogramacion #compilador #cuba #opensource
+> Lo interesante es que no es un juguete sintáctico: hay un pipeline de
+> compilación real detrás (lexer → parser con recuperación de errores →
+> análisis semántico → inferencia de tipos → expansión de componentes),
+> un intérprete con hot-reload, componentes con estado por instancia,
+> módulos con import, un LSP sin dependencias y una extensión de VS Code.
+> El playground compila y ejecuta todo en el navegador, sin servidor.
+>
+> También quiero ser claro sobre lo que no es: no es un framework de
+> producción, no compite con Tauri/Electron/Svelte/React, y el shell de
+> escritorio aún necesita Node instalado. Es una herramienta para prototipar
+> y para aprender cómo funciona un compilador leyendo uno.
+>
+> Lo desarrollé desde Cuba, donde la conexión va y viene: por eso todo corre
+> localmente. 103 tests, Apache-2.0, documentación en español e inglés.
+>
+> ▶ Pruébalo: https://jmarc9901.github.io/KARA/playground.html
+> 📦 `npm install -g kara-lang && kara new my-app && kara dev`
+> 🔗 https://github.com/jmarc9901/KARA
+>
+> Guion sugerido: 1) qué es KARA (30 s) · 2) el pipeline real, recorrido por el
+> código (60 s) · 3) demo en el playground (60 s) · 4) componentes, módulos y
+> derived (45 s) · 5) límites honestos: qué no hace (30 s) · 6) cierre (15 s).
+>
+> #programacion #lenguajedeprogramacion #compilador #opensource
 
 ### 7.3 LinkedIn
 
-> Desde Cuba, con apagones y una conexión que va y viene, construí un lenguaje
-> de programación completo: **KARA**.
+> He construido **KARA**: un lenguaje en miniatura, pero real, para prototipar
+> interfaces de escritorio con vista previa instantánea.
 >
-> No fue un detalle técnico que KARA funcione 100% sin internet — fue el
-> requisito. El compilador, el intérprete, el language server y la
-> documentación corren localmente; el playground vive en el navegador sin
-> servidor. Aprendí a escribir software que no depende de la conexión, y eso
-> cambió la forma en que diseño.
+> Detrás hay un pipeline de compilación completo en ~3.500 líneas de
+> JavaScript sin dependencias: lexer, parser con recuperación de errores,
+> análisis semántico, inferencia de tipos y expansión de componentes. Incluye
+> intérprete con hot-reload, `derived` ordenados por grafo de dependencias,
+> componentes con estado por instancia, módulos, un LSP sin dependencias, una
+> extensión de VS Code y un playground que compila y ejecuta todo en el
+> navegador.
 >
-> KARA incluye un pipeline de compilación real (léxico → parser → semántica →
-> inferencia de tipos → expansión de componentes), componentes con estado por
-> instancia, módulos, LSP sin dependencias, extensión de VS Code y shell de
-> escritorio con Tauri. En la v0.4: builtins de orden superior
-> (`Map`/`Filter`/`Reduce`), temporizadores, parser en Rust con paridad en CI
-> y test e2e del runtime. 100+ tests, Apache-2.0.
+> Quiero ser explícito sobre qué no es: no es un framework de producción y no
+> compite con Tauri, Electron, Svelte o React. El shell de escritorio (Tauri)
+> aún requiere Node instalado. Es una herramienta para dos cosas: prototipar
+> una UI de escritorio en minutos, y aprender cómo funciona un compilador
+> leyendo uno real. Prefiero decir esto claramente a venderlo como algo que
+> no es.
 >
-> ▶ Pruébalo sin instalar nada: https://jmarc9901.github.io/KARA/playground.html
-> 📦 npm: `npm install -g kara-lang && kara new my-app && kara dev`
-> 🔗 Repo: https://github.com/jmarc9901/KARA
+> 103 tests · Apache-2.0 · documentación en español e inglés. Lo desarrollé
+> desde Cuba, donde la conexión va y viene: por eso todo corre localmente.
 >
-> Si algo así se construye en Cuba, se puede construir en cualquier parte.
-> ¿Feedback? ¡Bienvenido!
+> ▶ Pruébalo: https://jmarc9901.github.io/KARA/playground.html
+> 📦 `npm install -g kara-lang && kara new my-app && kara dev`
+> 🔗 https://github.com/jmarc9901/KARA
+>
+> ¿Preguntas, críticas o sugerencias? Son bienvenidas.
 
 ### 7.4 Threads
 
-> Hilo: soy desarrollador en Cuba y construí un lenguaje de programación entre
-> apagones y conexión inestable 🧵
+> Hilo: construí un lenguaje de programación en miniatura, y hoy te cuento qué
+> hace de verdad y qué no hace 🧵
 >
-> 1/4 Se llama **KARA**: un lenguaje declarativo y reactivo para prototipar
-> interfaces de escritorio. Escribes la interfaz en texto plano y ves el
-> resultado en vivo. Pruébalo sin instalar nada 👉
+> 1/4 Se llama **KARA** y es para prototipar interfaces de escritorio: declaras
+> la UI, escribes la lógica, el estado es reactivo. Compila e interpreta todo
+> en tu navegador, sin servidor. Pruébalo 👉
 > https://jmarc9901.github.io/KARA/playground.html
 >
-> 2/4 Cuando casi no hay luz ni internet, aprendes a que tu código funcione
-> sin ellos. Todo en KARA corre local: compilador, intérprete, LSP y docs. El
-> playground funciona en el navegador sin servidor.
+> 2/4 Lo que tiene de interesante es el pipeline real: lexer, parser con
+> recuperación de errores, análisis semántico, inferencia de tipos y expansión
+> de componentes, en ~3.500 líneas de JS sin dependencias. Más un LSP y una
+> extensión de VS Code.
 >
-> 3/4 La v0.4 añade `Map`/`Filter`/`Reduce`, temporizadores
-> (`SetTimeout`/`SetInterval`), parser en Rust sincronizado con paridad en CI
-> y un test e2e del runtime.
+> 3/4 Y lo que NO es, sin rodeos: no es un framework de producción, no
+> compite con Tauri/Electron/Svelte/React y el shell de escritorio aún
+> necesita Node. Es para prototipar en minutos y para aprender compiladores
+> leyendo uno.
 >
-> 4/4 Código abierto (Apache-2.0), ~4.000 líneas legibles, docs en español e
-> inglés. Repo: https://github.com/jmarc9901/KARA · Instalar:
+> 4/4 103 tests, Apache-2.0, docs en español e inglés. Lo hice desde Cuba,
+> donde la conexión va y viene: por eso todo corre local. Repo:
+> https://github.com/jmarc9901/KARA · Instalar:
 > `npm i -g kara-lang && kara new app && kara dev`
 
 ### 7.5 X / Twitter
 
 **Post corto:**
-> Soy desarrollador en Cuba. Con apagones y conexión inestable construí un
-> lenguaje de programación que funciona sin internet. Declarativo, reactivo,
-> con compilador real y playground en el navegador 👉
-> https://jmarc9901.github.io/KARA/playground.html · Repo:
-> https://github.com/jmarc9901/KARA 🇨🇺
+> Construí un lenguaje de programación en miniatura: KARA. Declaras la UI,
+> escribes la lógica, el estado es reactivo. Compilador real (lexer → parser
+> → semántica → tipos) en ~3.500 líneas de JS sin dependencias, LSP y
+> playground en el navegador. No es un framework de producción: es para
+> prototipar y aprender. Pruébalo: https://jmarc9901.github.io/KARA/playground.html
+> Repo: https://github.com/jmarc9901/KARA
 
 **Hilo (alternativa):**
-> 1/3 Construí **KARA**, un lenguaje de programación, desde Cuba — donde los
-> apagones y la conexión inestable son parte del día a día. Así que lo hice
-> offline-first: todo corre en tu máquina.
+> 1/3 Construí **KARA**, un lenguaje para prototipar UIs de escritorio con
+> vista previa instantánea. Lo distinto: hay un compilador real detrás —
+> lexer, parser, semántica, inferencia de tipos, expansión de componentes —
+> en ~3.500 líneas de JS sin dependencias.
 >
-> 2/3 `state` + `derived` con grafo de dependencias, componentes con estado
-> propio, módulos, LSP sin dependencias. La v0.4 añade `Map`/`Filter`/`Reduce`,
-> temporizadores y parser en Rust con paridad en CI.
+> 2/3 Incluye intérprete con hot-reload, `derived` con grafo de dependencias,
+> componentes con estado propio, módulos, LSP y extensión de VS Code. Todo
+> compila e interpreta en el navegador, sin servidor.
 >
-> 3/3 Pruébalo: https://jmarc9901.github.io/KARA/playground.html ·
-> `npm i -g kara-lang && kara new app && kara dev` · Repo:
-> https://github.com/jmarc9901/KARA #programacion #opensource #cuba
+> 3/3 Honestidad: no es un framework de producción ni compite con
+> Tauri/Electron/Svelte. Es para prototipar y para aprender compiladores.
+> Lo hice desde Cuba, donde la conexión va y viene: por eso corre local.
+> https://jmarc9901.github.io/KARA/playground.html · Repo:
+> https://github.com/jmarc9901/KARA #programacion #opensource
 
 ### 7.6 Facebook
 
-> Construí un lenguaje de programación como proyecto personal, desde Cuba y
-> entre apagones: **KARA**, para prototipar interfaces de escritorio de forma
-> declarativa y reactiva.
+> Hice un lenguaje de programación como proyecto personal: **KARA**. Es
+> pequeño, pero real — no es una demo de sintaxis.
 >
-> Aquí la conexión va y viene, así que lo diseñé para que todo funcione sin
-> internet: el compilador, el intérprete y el playground corren en tu propia
-> máquina o navegador, sin servidores. Si se puede hacer así en Cuba, se puede
-> hacer en cualquier lugar.
+> Para prototipar interfaces de escritorio: declaras la interfaz, escribes la
+> lógica y el estado es reactivo. Detrás hay un compilador completo — lexer,
+> parser, análisis semántico, inferencia de tipos y expansión de componentes —
+> en ~3.500 líneas de JavaScript sin dependencias, más intérprete con
+> hot-reload, LSP y extensión de VS Code. Puedes probarlo en el navegador sin
+> instalar nada: https://jmarc9901.github.io/KARA/playground.html
 >
-> Puedes probarlo directamente en el navegador, sin instalar nada:
-> https://jmarc9901.github.io/KARA/playground.html
+> Y para ser honesto sobre lo que no es: no es un framework de producción y
+> no reemplaza a Tauri, Electron, Svelte o React. Es una herramienta para
+> prototipar en minutos y para aprender cómo funciona un compilador leyendo
+> uno. El shell de escritorio todavía necesita Node instalado.
 >
-> Tiene compilador real (léxico → parser → semántica → tipos), intérprete con
-> hot-reload, componentes con estado propio, módulos y extensión para VS Code.
-> La última versión añade `Map`/`Filter`/`Reduce` y temporizadores.
+> Lo construí desde Cuba, donde la conexión va y viene; por eso todo corre en
+> tu máquina, sin depender de internet. 103 tests, código abierto
+> (Apache-2.0) y documentación en español: https://github.com/jmarc9901/KARA
 >
-> Código abierto (Apache-2.0), con documentación en español:
-> https://github.com/jmarc9901/KARA
->
-> ¿Te gustaría ver un video tutorial de cómo lo construí? 👇
+> Si te interesa el tema de los compiladores o el desarrollo de lenguajes,
+> me encantaría leer tu opinión. 👇
